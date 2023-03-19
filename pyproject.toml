@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "diploma"
+version = "0.1.0"
+description = ""
+authors = ["Nikita Rydanov <wrongwayboyy@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.11"
+tensorflow-macos = "^2.11.0"
+seaborn = "^0.12.2"
+pandas = "^1.5.3"
+llvmlite = "^0.39.1"
+numba = "^0.56.4"
+librosa = "^0.10.0"
+tensorflow-metal = "^0.7.1"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.21.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
