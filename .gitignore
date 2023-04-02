@@ -1,5 +1,7 @@
-.venv
-.ipynb*
-.DS_Store
-*.lock
-data
+*
+
+!*.ipynb
+!pyproject.toml
+!.gitignore
+!*.py
+!.pre-commit-config.yaml
