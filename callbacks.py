@@ -18,6 +18,7 @@ class CheckpointAndSave(ModelCheckpoint):
     self.demo_data = demo_data
     self.model = model
     self.batch_size = batch_size
+    
   def save_demo(self, data, save_path):
     if not CheckpointAndSave.cached:
       CheckpointAndSave.test_result = self.model.predict(data, batch_size=self.batch_size).reshape(-1, 1)

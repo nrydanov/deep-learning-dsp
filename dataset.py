@@ -3,9 +3,9 @@ import librosa
 import numpy as np
 import random
 
-class RawWaveformLoader(keras.utils.Sequence):
-  
-  def __init__(self, 
+
+class BaseLoader(keras.utils.Sequence):
+   def __init__(self, 
                input_path: str, 
                output_path: str, 
                batch_size: int, 
@@ -29,9 +29,15 @@ class RawWaveformLoader(keras.utils.Sequence):
       self.end_offset = librosa.get_duration(path=input_path, sr=44100)
     else:
       self.end_offset = end_offset
-      
+        
     self.x, self.y = self.__select_interval__()
     
+    def __select_interval__(self):
+      raise NotImplementedError()
+    
+
+class RawWaveformLoader(BaseLoader):
+  
   def __select_interval__(self):
     
     if self.dynamic:
@@ -115,11 +121,9 @@ class RawWaveformLoader(keras.utils.Sequence):
                               interval_duration=self.test_time,
                               start_offset=self.valid_time,
                               preemphasis=self.preemphasis)
+        return train, valid, test
       else:
-        test = None
-        
-      return train, valid, test
-    
-
-class STFTLoader(keras.utils.Sequence):
+        return train, valid
+      
+class STFTLoader(BaseLoader):
   pass

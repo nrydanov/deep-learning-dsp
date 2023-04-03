@@ -1,7 +1,10 @@
-*
+__pycache__
 
-!*.ipynb
-!pyproject.toml
+data
+
+poetry.lock
+artifacts
+
+.*
 !.gitignore
-!*.py
-!.pre-commit-config.yaml
+
