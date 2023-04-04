@@ -1,5 +1,10 @@
-.venv
-.ipynb*
-.DS_Store
-*.lock
+__pycache__
+
 data
+
+poetry.lock
+models
+
+.*
+!.gitignore
+

@@ -7,13 +7,18 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
-tensorflow-macos = "^2.11.0"
+tensorflow-macos = {version = "^2.12.0", platform = "darwin"}
 seaborn = "^0.12.2"
+numpy = "^1.23"
 pandas = "^1.5.3"
-llvmlite = "^0.39.1"
-numba = "^0.56.4"
 librosa = "^0.10.0"
-tensorflow-metal = "^0.7.1"
+wavfile = "^4.6.0"
+pre-commit = "^3.2.1"
+tensorflow-metal = {version = "^0.8", platform = "darwin"}
+tensorflow = {version = "^2.12.0", platform = "linux"}
+pytest = "^7.2.2"
+tensorflow-probability = "^0.19.0"
+gitpython = "^3.1.31"
 
 
 [tool.poetry.group.dev.dependencies]
