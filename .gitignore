@@ -3,7 +3,7 @@ __pycache__
 data
 
 poetry.lock
-artifacts
+models
 
 .*
 !.gitignore

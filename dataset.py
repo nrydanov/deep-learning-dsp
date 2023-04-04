@@ -19,16 +19,16 @@ class BaseLoader(keras.utils.Sequence):
     self.preemphasis = preemphasis
     self.duration = duration
         
-    self.x, self.y = self.load_interval()
+    self.x, self.y = self.load_data()
     
     self.y = self.y[input_size - 1:]
     
-    def load_interval(self):
+    def load_data(self):
       raise NotImplementedError()
     
 class RawWaveformLoader(BaseLoader):
   
-  def load_interval(self):
+  def load_data(self):
       
     in_data, _ = librosa.load(path=self.input_path,
         sr=44100,
@@ -69,19 +69,19 @@ class RawWaveformLoader(BaseLoader):
     def __init__(self,
                 input_path: str,
                 output_path: str,
-                train_time: int, # in seconds 
-                valid_time: int, # in seconds
-                test_time = 0, # in seconds
-                batch_size = 32,
-                input_size = 44,
+                train_size=0.7,
+                val_size=0.2,
+                test_size=0.0,
+                batch_size=2 ** 12,
+                input_size=150,
                 preemphasis=True,
                 valid_only=True) -> None:
       self.input_path = input_path
       self.output_path = output_path
       
-      self.test_time = test_time
-      self.valid_time = valid_time
-      self.train_time = train_time
+      self.train_size = train_size
+      self.val_size = val_size
+      self.test_size = test_size
       
       self.batch_size = batch_size
       self.input_size = input_size
@@ -90,21 +90,28 @@ class RawWaveformLoader(BaseLoader):
       self.valid_only = valid_only
       
     def split(self) -> tuple:
+      
+      length = librosa.get_duration(path=self.input_path)
+      
+      train_duration = int(length * self.train_size)
+      val_duration = int(length * self.val_size)
+      test_duration = int(length * self.val_size)
+      
       train = RawWaveformLoader(self.input_path, self.output_path, 
                             self.batch_size, self.input_size, 
-                            duration=self.train_time,
-                            offset=self.valid_time + self.test_time,
+                            duration=train_duration,
+                            offset=val_duration + test_duration,
                             preemphasis=self.preemphasis)
       valid = RawWaveformLoader(self.input_path, self.output_path, 
                             self.batch_size, self.input_size, 
-                            duration=self.valid_time,
+                            duration=val_duration,
                             offset=0,
                             preemphasis=self.preemphasis)
       if not self.valid_only:
         test = RawWaveformLoader(self.input_path, self.output_path, 
                               self.batch_size, self.input_size, 
-                              duration=self.test_time,
-                              offset=self.valid_time,
+                              duration=test_duration,
+                              offset=val_duration,
                               preemphasis=self.preemphasis)
         return train, valid, test
       else:
