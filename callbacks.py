@@ -1,4 +1,4 @@
-from keras.callbacks import ModelCheckpoint, Callback, Back
+from keras.callbacks import ModelCheckpoint, Callback
 from scipy.io import wavfile
 import keras
 import os
