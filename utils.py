@@ -28,18 +28,23 @@ def init_parser() -> ArgumentParser:
     parser.add_argument("--learning_rate", type=float, required=True)
     parser.add_argument("--batch_size", type=int, required=True)
     parser.add_argument('--save_path', type=str, required=True)
+    parser.add_argument("--device", type=str, required=False)
     parser.add_argument("--restore_state", type=bool, required=False)
+    
     return parser
 
 
-def init_device() -> torch.device:
-    if torch.backends.mps.is_available() and torch.backends.mps.is_built():
-        name = "mps"
-    elif torch.cuda.is_available():
-        name = "cuda"
-    else:
-        name = "cpu"
-    return torch.device(name)
+def init_device(device) -> torch.device:
+    if device is not None:
+        return torch.device(device)
+    else:    
+        if torch.backends.mps.is_available() and torch.backends.mps.is_built():
+            name = "mps"
+        elif torch.cuda.is_available():
+            name = "cuda"
+        else:
+            name = "cpu"
+        return torch.device(name)
 
 
 def empty_cache(device) -> None:

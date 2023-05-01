@@ -13,7 +13,7 @@ from keras.utils import Progbar
 def main():
     parser = init_parser()
     args = parser.parse_args()
-    device: torch.device = init_device()
+    device: torch.device = init_device(args.device)
 
     model = get_model(args.model_type)
 
