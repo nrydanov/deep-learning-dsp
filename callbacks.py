@@ -5,7 +5,6 @@ import os
 import math
 import keras.backend as K
 
-
 class CheckpointAndSave(ModelCheckpoint):
   cached = False
   test_result = None
