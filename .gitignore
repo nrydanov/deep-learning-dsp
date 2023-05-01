@@ -1,9 +1,12 @@
 __pycache__
 
 data
+checkpoints
+keras
+startup.sh
 
 poetry.lock
-models
+archive
 
 .*
 !.gitignore
