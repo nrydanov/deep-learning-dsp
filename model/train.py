@@ -1,11 +1,12 @@
 import torch
 import os
+import logging
 
 from torch.utils.data import DataLoader, random_split
 from torch.optim import Adam
-from torch.nn import MSELoss, Module
+from torch.nn import MSELoss
 from models import get_model
-from utils import init_parser, init_device, empty_cache
+from utils import init_parser, init_device, init_logger
 
 from keras.utils import Progbar
 
@@ -13,16 +14,19 @@ from keras.utils import Progbar
 def main():
     parser = init_parser()
     args = parser.parse_args()
+    init_logger(args)
     device: torch.device = init_device(args.device)
 
     model = get_model(args.model_type)
 
-    config = model.Settings(_env_file=args.model_config)
-    model: torch.Module = model(config)
+    model_config = model.Settings(_env_file=args.model_config)
+    model: torch.Module = model(model_config)
     model.to(device)
 
     provider = model.get_provider()
-    provider = provider(provider.Settings(args.data_config))
+    data_config = provider.Settings(args.data_config)
+    logging.info(f"Generating {data_config.total_samples} samples based on input")
+    provider = provider(data_config)
 
     torch.manual_seed(69)
     train_provider, val_provider = random_split(provider, [0.8, 0.2])
@@ -33,11 +37,13 @@ def main():
     optimizer = Adam(model.parameters(), args.learning_rate)
 
     if args.restore_state is not None and args.restore_state == True:
+        logging.info("Loading state from checkpoint")
         checkpoint = torch.load(args.save_path)
         model.load_state_dict(checkpoint["model"])
         optimizer.load_state_dict(checkpoint["optimizer"])
         last_epoch = checkpoint["last_epoch"]
         best_loss = checkpoint["best_loss"]
+        logging.info("Successfully loaded state from checkpoint")
     else:
         last_epoch = -1
         best_loss = 1e18
@@ -47,6 +53,7 @@ def main():
     n_train = len(train_loader)
     n_val = len(val_loader)
 
+    logging.info("Starting training loop")
     for epoch in range(last_epoch + 1, args.epochs):
         print(f"Epoch {epoch + 1}/{args.epochs}")
         pb = Progbar(target=n_train)
