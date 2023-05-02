@@ -16,3 +16,4 @@ RUN pip install poetry==${POETRY_VERSION}
 RUN poetry install --no-interaction --no-ansi
 
 COPY model /guitar-emulation/model
+COPY config /guitar-emulation/config
