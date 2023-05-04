@@ -44,14 +44,14 @@ class WaveformDataset(BaseDataset):
         )
 
         self.config = config
-        
+
         self.x, self.y = [], []
         for _ in range(config.total_samples):
             x_cur, y_cur = self.__generate_sample__()
-            
+
             self.x.append(x_cur)
             self.y.append(y_cur)
-            
+
         self.x = np.array(self.x, dtype=np.float32)
         self.y = np.array(self.y, dtype=np.float32)
 

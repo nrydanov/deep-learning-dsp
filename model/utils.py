@@ -5,6 +5,7 @@ import logging
 from dataclasses import fields
 from librosa import istft
 from argparse import ArgumentParser
+from torch.utils.tensorboard import SummaryWriter
 
 from typing import Dict
 
@@ -30,7 +31,7 @@ def init_parser(type) -> ArgumentParser:
         parser.add_argument("--data_config", type=str, required=True)
         parser.add_argument("--learning_rate", type=float, required=True)
         parser.add_argument("--batch_size", type=int, required=True)
-        parser.add_argument("--save_path", type=str, required=True)
+        parser.add_argument("--attempt_name", type=str, required=True)
         parser.add_argument("--device", type=str, required=False)
         parser.add_argument("--restore_state", type=bool, required=False)
         parser.add_argument("--level", type=str, required=False)
@@ -75,3 +76,8 @@ def empty_cache(device) -> None:
             pass
         case _:
             raise ValueError("Got an unexpected device")
+
+
+def save_history(writer: SummaryWriter, history: dict, epoch):
+    for k, v in history.values():
+        writer.add_scalar(k, v, epoch)

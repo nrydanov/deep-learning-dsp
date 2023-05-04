@@ -17,6 +17,7 @@ pydantic = "^1.10.7"
 python-dotenv = "^1.0.0"
 black = "^23.3.0"
 pre-commit = "^3.3.0"
+tensorboard = "^2.12.3"
 
 
 [build-system]
