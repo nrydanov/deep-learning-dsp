@@ -9,8 +9,9 @@ from models import get_model
 from utils import init_parser, init_device, init_logger
 from tqdm import tqdm
 
+
 def main():
-    parser = init_parser()
+    parser = init_parser("train")
     args = parser.parse_args()
     init_logger(args)
     device: torch.device = init_device(args.device)
@@ -29,8 +30,8 @@ def main():
     torch.manual_seed(69)
     train_provider, val_provider = random_split(provider, [0.8, 0.2])
 
-    train_loader = DataLoader(train_provider, batch_size=args.batch_size)
-    val_loader = DataLoader(val_provider, batch_size=args.batch_size)
+    train_loader = DataLoader(train_provider, batch_size=args.batch_size, shuffle=True)
+    val_loader = DataLoader(val_provider, batch_size=args.batch_size, shuffle=True)
 
     optimizer = Adam(model.parameters(), args.learning_rate)
 
@@ -46,9 +47,8 @@ def main():
         last_epoch = -1
         best_loss = 1e18
 
-    criteria = MSELoss()
+    loss = MSELoss()
 
-    n_train = len(train_loader)
     n_val = len(val_loader)
 
     logging.info("Starting training loop")
@@ -64,7 +64,7 @@ def main():
             inputs = inputs.to(device)
             outputs = model(inputs)
 
-            train_loss = criteria(outputs, targets)
+            train_loss = loss(outputs, targets)
             train_loss.backward()
 
             total_loss += train_loss.item()
@@ -74,15 +74,14 @@ def main():
             loop.set_postfix(loss=total_loss / (i + 1))
 
         model.eval()
-
+        total_loss = 0
         with torch.no_grad():
-            total_loss = 0
             for inputs, targets in val_loader:
                 targets = targets.to(device)
                 inputs = inputs.to(device)
 
                 outputs = model(inputs)
-                val_loss = criteria(outputs, targets)
+                val_loss = loss(outputs, targets)
                 total_loss += val_loss.item()
 
             val_loss = total_loss / n_val

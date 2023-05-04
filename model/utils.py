@@ -20,20 +20,26 @@ def output_to_audio(data: np.ndarray, **kwargs) -> np.ndarray[np.float32]:
     return np.stack([istft(x, **kwargs)] for x in data)
 
 
-def init_parser() -> ArgumentParser:
+def init_parser(type) -> ArgumentParser:
     logging.info("Initializing parser")
     parser = ArgumentParser()
-    parser.add_argument("--model_type", type=str, required=True)
-    parser.add_argument("--epochs", type=int, required=True)
-    parser.add_argument("--model_config", type=str, required=True)
-    parser.add_argument("--data_config", type=str, required=True)
-    parser.add_argument("--learning_rate", type=float, required=True)
-    parser.add_argument("--batch_size", type=int, required=True)
-    parser.add_argument("--save_path", type=str, required=True)
-    parser.add_argument("--device", type=str, required=False)
-    parser.add_argument("--restore_state", type=bool, required=False)
-    parser.add_argument("--level", type=str, required=False)
-
+    if type == "train":
+        parser.add_argument("--model_type", type=str, required=True)
+        parser.add_argument("--epochs", type=int, required=True)
+        parser.add_argument("--model_config", type=str, required=True)
+        parser.add_argument("--data_config", type=str, required=True)
+        parser.add_argument("--learning_rate", type=float, required=True)
+        parser.add_argument("--batch_size", type=int, required=True)
+        parser.add_argument("--save_path", type=str, required=True)
+        parser.add_argument("--device", type=str, required=False)
+        parser.add_argument("--restore_state", type=bool, required=False)
+        parser.add_argument("--level", type=str, required=False)
+    else:
+        parser.add_argument("--model_type", type=str, required=True)
+        parser.add_argument("--checkpoint", type=str, required=True)
+        parser.add_argument("--device", type=str, required=True)
+        parser.add_argument("--input", type=str, required=True)
+        parser.add_argument("--output_path", type=str, required=True)
     return parser
 
 
