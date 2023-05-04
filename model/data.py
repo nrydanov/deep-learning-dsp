@@ -2,13 +2,13 @@ import librosa
 import torch
 import numpy as np
 
-from torch.utils.data import TensorDataset
+from torch.utils.data import Dataset
 from torchaudio.transforms import Spectrogram
 
 from pydantic import BaseSettings
 
 
-class BaseDataset(TensorDataset):
+class BaseDataset(Dataset):
     def __init__(self, config) -> None:
         raise NotImplementedError()
 
@@ -30,34 +30,44 @@ class WaveformDataset(BaseDataset):
 
     def __init__(self, config):
         self.input, _ = librosa.load(
-            config.in_path,
+            path=config.in_path,
             sr=config.sample_rate,
             offset=config.offset,
             duration=config.duration,
         )
 
         self.output, _ = librosa.load(
-            config.out_path,
+            path=config.out_path,
             sr=config.sample_rate,
             offset=config.offset,
             duration=config.duration,
         )
 
         self.config = config
+        
+        self.x, self.y = [], []
+        for _ in range(config.total_samples):
+            x_cur, y_cur = self.__generate_sample__()
+            
+            self.x.append(x_cur)
+            self.y.append(y_cur)
+            
+        self.x = np.array(self.x, dtype=np.float32)
+        self.y = np.array(self.y, dtype=np.float32)
 
     def __len__(self):
         return self.config.total_samples
 
-    def __getitem__(self, _):
-        return self.__generate_sample__()
+    def __getitem__(self, i):
+        return self.x[i], self.y[i]
 
     def __generate_sample__(self):
         time = np.random.randint(self.input.shape[0] - self.config.sample_rate // 2)
 
-        x_cur = torch.tensor(self.input[time : time + self.config.sample_rate // 2])
-        y_cur = torch.tensor(self.output[time : time + self.config.sample_rate // 2])
+        x_cur = self.input[time : time + self.config.sample_rate // 2]
+        y_cur = self.output[time : time + self.config.sample_rate // 2]
 
-        return x_cur.unsqueeze(1), y_cur.unsqueeze(1)
+        return np.array(x_cur).reshape(-1, 1), np.array(y_cur).reshape(-1, 1)
 
 
 class STFTDataset(WaveformDataset):
