@@ -1,28 +1,30 @@
 import torch
 import os
+import logging
 
 from torch.utils.data import DataLoader, random_split
 from torch.optim import Adam
-from torch.nn import MSELoss, Module
+from torch.nn import MSELoss
 from models import get_model
-from utils import init_parser, init_device, empty_cache
-
-from keras.utils import Progbar
-
+from utils import init_parser, init_device, init_logger
+from tqdm import tqdm
 
 def main():
     parser = init_parser()
     args = parser.parse_args()
+    init_logger(args)
     device: torch.device = init_device(args.device)
 
     model = get_model(args.model_type)
 
-    config = model.Settings(_env_file=args.model_config)
-    model: torch.Module = model(config)
+    model_config = model.Settings(_env_file=args.model_config)
+    model: torch.Module = model(model_config)
     model.to(device)
 
     provider = model.get_provider()
-    provider = provider(provider.Settings(args.data_config))
+    data_config = provider.Settings(args.data_config)
+    logging.info(f"Generating {data_config.total_samples} samples based on input")
+    provider = provider(data_config)
 
     torch.manual_seed(69)
     train_provider, val_provider = random_split(provider, [0.8, 0.2])
@@ -32,12 +34,14 @@ def main():
 
     optimizer = Adam(model.parameters(), args.learning_rate)
 
-    if args.restore_state is not None and args.restore_state == True:
+    if args.restore_state is not None and args.restore_state:
+        logging.info("Loading state from checkpoint")
         checkpoint = torch.load(args.save_path)
         model.load_state_dict(checkpoint["model"])
         optimizer.load_state_dict(checkpoint["optimizer"])
         last_epoch = checkpoint["last_epoch"]
         best_loss = checkpoint["best_loss"]
+        logging.info("Successfully loaded state from checkpoint")
     else:
         last_epoch = -1
         best_loss = 1e18
@@ -47,13 +51,13 @@ def main():
     n_train = len(train_loader)
     n_val = len(val_loader)
 
+    logging.info("Starting training loop")
     for epoch in range(last_epoch + 1, args.epochs):
-        print(f"Epoch {epoch + 1}/{args.epochs}")
-        pb = Progbar(target=n_train)
         model.train()
 
         total_loss = 0
-        for i, (inputs, targets) in enumerate(train_loader):
+        loop = tqdm(train_loader)
+        for i, (inputs, targets) in enumerate(loop):
             optimizer.zero_grad()
 
             targets = targets.to(device)
@@ -66,13 +70,14 @@ def main():
             total_loss += train_loss.item()
 
             optimizer.step()
-            pb.update(i, values=[("loss", total_loss / (i + 1))])
+            loop.set_description(f"Epoch {epoch}/{args.epochs}")
+            loop.set_postfix(loss=total_loss / (i + 1))
 
         model.eval()
 
         with torch.no_grad():
             total_loss = 0
-            for i, (inputs, targets) in enumerate(val_loader):
+            for inputs, targets in val_loader:
                 targets = targets.to(device)
                 inputs = inputs.to(device)
 
@@ -80,14 +85,14 @@ def main():
                 val_loss = criteria(outputs, targets)
                 total_loss += val_loss.item()
 
-            current_loss = total_loss / n_val
-            if current_loss < best_loss:
+            val_loss = total_loss / n_val
+            if val_loss < best_loss:
                 print(
-                    f"\nValidation loss decreased from {best_loss:.4f} to {current_loss:.4f}"
+                    f"\nValidation loss decreased from {best_loss:.4f} to {val_loss:.4f}"
                 )
                 dir_path = "/".join(args.save_path.split("/")[:-1])
                 os.makedirs(dir_path, exist_ok=True)
-                best_loss = total_loss / n_val
+                best_loss = val_loss
                 torch.save(
                     {
                         "model": model.state_dict(),
@@ -111,8 +116,7 @@ def main():
                     args.save_path,
                 )
 
-            pb.update(i, values=[("val_loss", total_loss / len(val_loader))])
-            print("\r")
+        loop.set_postfix(val_loss=val_loss)
 
 
 if __name__ == "__main__":

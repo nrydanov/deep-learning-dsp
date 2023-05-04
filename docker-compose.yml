@@ -1,0 +1,7 @@
+services:
+  model-training:
+    image: model-training
+    volumes: 
+      - ./data:/guitar-emulation/data
+    build: .
+    tty: true
