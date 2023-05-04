@@ -7,5 +7,5 @@ poetry run python3 model/train.py \
         --data_config=config/baseline/data.cfg \
         --learning_rate=0.001 \
         --batch_size=64 \
-        --save_path=./checkpoints/baseline.pt \
+        --attempt_name=baseline_rnn \
         --device=$TORCH_DEVICE

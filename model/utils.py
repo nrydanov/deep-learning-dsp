@@ -1,16 +1,16 @@
 import numpy as np
+import pandas as pd
 import torch
 import logging
+import os
 
 from dataclasses import fields
 from librosa import istft
 from argparse import ArgumentParser
-from torch.utils.tensorboard import SummaryWriter
-
 from typing import Dict
 
 
-def get_required_for(cls, kwargs) -> Dict[str, object]:
+def get_required_for(cls, kwargs: Dict[str, object]) -> Dict[str, object]:
     return {
         k: v for k, v in kwargs.items() if k in list(map(lambda x: x.name, fields(cls)))
     }
@@ -21,7 +21,7 @@ def output_to_audio(data: np.ndarray, **kwargs) -> np.ndarray[np.float32]:
     return np.stack([istft(x, **kwargs)] for x in data)
 
 
-def init_parser(type) -> ArgumentParser:
+def init_parser(type: str) -> ArgumentParser:
     logging.info("Initializing parser")
     parser = ArgumentParser()
     if type == "train":
@@ -44,7 +44,7 @@ def init_parser(type) -> ArgumentParser:
     return parser
 
 
-def init_device(device) -> torch.device:
+def init_device(device: str) -> torch.device:
     if device is not None:
         logging.info(f"Using device from command line: {device}")
         return torch.device(device)
@@ -78,6 +78,15 @@ def empty_cache(device) -> None:
             raise ValueError("Got an unexpected device")
 
 
-def save_history(writer: SummaryWriter, history: dict, epoch):
-    for k, v in history.values():
-        writer.add_scalar(k, v, epoch)
+def save_history(attempt_name: str, history: dict):
+    os.makedirs("logs", exist_ok=True)
+    
+    path = f"logs/{attempt_name}.csv"
+    try:
+        logs = pd.read_csv(path, index_col='index')
+    except OSError:
+        logs = pd.DataFrame(columns=history.keys())
+        
+    logs.loc[logs.shape[0]] = history.values()
+    
+    logs.to_csv(path, index_label='index')
