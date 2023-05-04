@@ -30,9 +30,10 @@ WORKDIR $WD_NAME
 
 COPY poetry.lock pyproject.toml $WD_NAME
 
-RUN pip install poetry==${POETRY_VERSION}
-RUN poetry config installer.max-workers 10
-RUN poetry install --no-interaction --no-ansi -vvv
+RUN pip install poetry==${POETRY_VERSION} \
+        && poetry config installer.max-workers 10 \
+        && poetry install --no-dev --no-interaction --no-ansi -vvv
+
 
 COPY model $WD_NAME/model
 COPY config $WD_NAME/config
