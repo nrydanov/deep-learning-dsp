@@ -9,7 +9,6 @@ readme = "README.md"
 python = ">=3.10,<3.11"
 numpy = "^1.23"
 librosa = "^0.10.0"
-pre-commit = "^3.2.1"
 torch = "^2.0.0"
 torchaudio = "^2.0.1"
 torchvision = "^0.15.1"
@@ -17,6 +16,7 @@ tqdm = "^4.65.0"
 pydantic = "^1.10.7"
 python-dotenv = "^1.0.0"
 black = "^23.3.0"
+pre-commit = "^3.3.0"
 
 
 [build-system]

@@ -4,12 +4,4 @@ services:
     volumes: 
       - ./data:/guitar-emulation/data
     build: .
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-              
     tty: true

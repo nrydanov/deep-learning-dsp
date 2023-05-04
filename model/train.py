@@ -34,7 +34,7 @@ def main():
 
     optimizer = Adam(model.parameters(), args.learning_rate)
 
-    if args.restore_state is not None and args.restore_state == True:
+    if args.restore_state is not None and args.restore_state:
         logging.info("Loading state from checkpoint")
         checkpoint = torch.load(args.save_path)
         model.load_state_dict(checkpoint["model"])
