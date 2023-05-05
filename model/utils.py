@@ -42,6 +42,8 @@ def init_parser(type: str) -> ArgumentParser:
         parser.add_argument("--device", type=str, required=True)
         parser.add_argument("--input", type=str, required=True)
         parser.add_argument("--output_path", type=str, required=True)
+        parser.add_argument("--batch_size", type=int, required=True)
+        parser.add_argument("--duration", type=int, required=False, default=None)
     return parser
 
 

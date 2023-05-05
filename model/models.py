@@ -32,6 +32,7 @@ class BaselineRNN(Module):
 
         self.lstm = LSTM(1, hidden_size, batch_first=True)
         self.linear = Linear(hidden_size, 1)
+        self.initial_state = None
 
     class Settings(BaseSettings):
         hidden_size: int
@@ -40,8 +41,10 @@ class BaselineRNN(Module):
             pass
 
     def forward(self, x0: torch.Tensor) -> torch.Tensor:
-        x, _ = self.lstm(x0)
+        x, (h_n, c_n) = self.lstm(x0, self.initial_state)
         x = self.linear(x)
+        
+        self.initial_state = (h_n, c_n)
         return torch.add(x, x0)
 
     def get_provider(self):
