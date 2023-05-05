@@ -30,7 +30,7 @@ class BaselineRNN(Module):
 
         hidden_size = config.hidden_size
 
-        self.lstm = LSTM(1, hidden_size)
+        self.lstm = LSTM(1, hidden_size, batch_first=True)
         self.linear = Linear(hidden_size, 1)
 
     class Settings(BaseSettings):

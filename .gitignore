@@ -4,6 +4,7 @@ data
 checkpoints
 keras
 startup.sh
+logs
 
 poetry.lock
 archive

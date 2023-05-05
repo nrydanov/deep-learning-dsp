@@ -6,17 +6,17 @@ from torch.utils.data import DataLoader, random_split
 from torch.optim import Adam
 from torch.nn import MSELoss
 from models import get_model
-from utils import init_parser, init_device, init_logger
+from utils import init_parser, init_device, init_logger, save_history
 from tqdm import tqdm
 
+
 def main():
-    parser = init_parser()
+    parser = init_parser("train")
     args = parser.parse_args()
     init_logger(args)
-    device: torch.device = init_device(args.device)
+    device = init_device(args.device)
 
     model = get_model(args.model_type)
-
     model_config = model.Settings(_env_file=args.model_config)
     model: torch.Module = model(model_config)
     model.to(device)
@@ -29,8 +29,8 @@ def main():
     torch.manual_seed(69)
     train_provider, val_provider = random_split(provider, [0.8, 0.2])
 
-    train_loader = DataLoader(train_provider, batch_size=args.batch_size)
-    val_loader = DataLoader(val_provider, batch_size=args.batch_size)
+    train_loader = DataLoader(train_provider, batch_size=args.batch_size, shuffle=True)
+    val_loader = DataLoader(val_provider, batch_size=args.batch_size, shuffle=True)
 
     optimizer = Adam(model.parameters(), args.learning_rate)
 
@@ -46,9 +46,8 @@ def main():
         last_epoch = -1
         best_loss = 1e18
 
-    criteria = MSELoss()
+    loss = MSELoss()
 
-    n_train = len(train_loader)
     n_val = len(val_loader)
 
     logging.info("Starting training loop")
@@ -64,7 +63,7 @@ def main():
             inputs = inputs.to(device)
             outputs = model(inputs)
 
-            train_loss = criteria(outputs, targets)
+            train_loss = loss(outputs, targets)
             train_loss.backward()
 
             total_loss += train_loss.item()
@@ -72,50 +71,51 @@ def main():
             optimizer.step()
             loop.set_description(f"Epoch {epoch}/{args.epochs}")
             loop.set_postfix(loss=total_loss / (i + 1))
+        train_loss = total_loss / len(train_loader)
 
         model.eval()
-
+        total_loss = 0
         with torch.no_grad():
-            total_loss = 0
             for inputs, targets in val_loader:
                 targets = targets.to(device)
                 inputs = inputs.to(device)
 
                 outputs = model(inputs)
-                val_loss = criteria(outputs, targets)
+                val_loss = loss(outputs, targets)
                 total_loss += val_loss.item()
+        val_loss = total_loss / n_val
 
-            val_loss = total_loss / n_val
-            if val_loss < best_loss:
-                print(
-                    f"\nValidation loss decreased from {best_loss:.4f} to {val_loss:.4f}"
-                )
-                dir_path = "/".join(args.save_path.split("/")[:-1])
-                os.makedirs(dir_path, exist_ok=True)
-                best_loss = val_loss
-                torch.save(
-                    {
-                        "model": model.state_dict(),
-                        "best_model": model.state_dict(),
-                        "optimizer": optimizer.state_dict(),
-                        "best_loss": best_loss,
-                        "last_epoch": epoch,
-                    },
-                    args.save_path,
-                )
-            else:
-                checkpoint = torch.load(args.save_path)
-                torch.save(
-                    {
-                        "model": model.state_dict(),
-                        "best_model": checkpoint["best_model"],
-                        "optimizer": optimizer.state_dict(),
-                        "best_loss": best_loss,
-                        "last_epoch": epoch,
-                    },
-                    args.save_path,
-                )
+        save_path = f"checkpoints/{args.attempt_name}.pt"
+        if val_loss < best_loss:
+            print(f"\nValidation loss decreased from {best_loss:.4f} to {val_loss:.4f}")
+            os.makedirs("checkpoints", exist_ok=True)
+            best_loss = val_loss
+            torch.save(
+                {
+                    "model": model.state_dict(),
+                    "best_model": model.state_dict(),
+                    "optimizer": optimizer.state_dict(),
+                    "best_loss": best_loss,
+                    "last_epoch": epoch,
+                },
+                save_path,
+            )
+        else:
+            print(f"\nValidation loss didn't decrease, best loss: {best_loss:.4f}")
+            checkpoint = torch.load(save_path)
+            torch.save(
+                {
+                    "model": model.state_dict(),
+                    "best_model": checkpoint["best_model"],
+                    "optimizer": optimizer.state_dict(),
+                    "best_loss": best_loss,
+                    "last_epoch": epoch,
+                },
+                save_path,
+            )
+        history = {"train_loss": train_loss, "val_loss": val_loss, "epoch": epoch}
 
+        save_history(args.attempt_name, history)
         loop.set_postfix(val_loss=val_loss)
 
 
