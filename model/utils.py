@@ -37,6 +37,7 @@ def init_parser(type: str) -> ArgumentParser:
         parser.add_argument("--level", type=str, required=False)
     else:
         parser.add_argument("--model_type", type=str, required=True)
+        parser.add_argument("--model_config", type=str, required=True)
         parser.add_argument("--checkpoint", type=str, required=True)
         parser.add_argument("--device", type=str, required=True)
         parser.add_argument("--input", type=str, required=True)
@@ -80,13 +81,13 @@ def empty_cache(device) -> None:
 
 def save_history(attempt_name: str, history: dict):
     os.makedirs("logs", exist_ok=True)
-    
+
     path = f"logs/{attempt_name}.csv"
     try:
-        logs = pd.read_csv(path, index_col='index')
+        logs = pd.read_csv(path, index_col="index")
     except OSError:
         logs = pd.DataFrame(columns=history.keys())
-        
+
     logs.loc[logs.shape[0]] = history.values()
-    
-    logs.to_csv(path, index_label='index')
+
+    logs.to_csv(path, index_label="index")

@@ -1,8 +1,9 @@
 import torch
+import librosa
+
 from utils import init_parser, init_device, init_logger
 from models import get_model
-
-import librosa
+from scipy.io import wavfile
 
 
 def main():
@@ -13,14 +14,21 @@ def main():
 
     model = get_model(args.model_type)
 
-    model.load_state_dict(torch.load(args.checkpoint))
+    model_config = model.Settings(_env_file=args.model_config)
+    model: torch.Module = model(model_config)
+
+    model.load_state_dict(torch.load(args.checkpoint)["model"])
     model.to(device)
+
+    data, _ = librosa.load(args.input, sr=44100, duration=10)
 
     model.eval()
     with torch.no_grad():
-        inputs = torch.tensor(librosa.load(args.input))
-        inputs.to(device)
+        inputs = torch.tensor(data.reshape(-1, 1)).to(device)
 
         outputs = model(inputs)
+        wavfile.write(args.output_path, 44100, outputs.cpu().numpy())
 
-        print(outputs.size())
+
+if __name__ == "__main__":
+    main()
