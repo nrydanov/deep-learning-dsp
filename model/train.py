@@ -6,12 +6,12 @@ from torch.utils.data import DataLoader, random_split
 from torch.optim import Adam
 from torch.nn import MSELoss
 from models import get_model
-from utils import init_parser, init_device, init_logger, save_history
+from utils import init_parser, init_device, init_logger, save_history, ParserType
 from tqdm import tqdm
 
 
 def main():
-    parser = init_parser("train")
+    parser = init_parser(ParserType.TRAIN)
     args = parser.parse_args()
     init_logger(args)
     device = init_device(args.device)

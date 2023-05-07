@@ -8,6 +8,7 @@ from dataclasses import fields
 from librosa import istft
 from argparse import ArgumentParser
 from typing import Dict
+from enum import Enum
 
 
 def get_required_for(cls, kwargs: Dict[str, object]) -> Dict[str, object]:
@@ -21,10 +22,15 @@ def output_to_audio(data: np.ndarray, **kwargs) -> np.ndarray[np.float32]:
     return np.stack([istft(x, **kwargs)] for x in data)
 
 
-def init_parser(type: str) -> ArgumentParser:
+class ParserType(Enum):
+    TRAIN = "train"
+    INFERENCE = "inference"
+    
+
+def init_parser(type: ParserType) -> ArgumentParser:
     logging.info("Initializing parser")
     parser = ArgumentParser()
-    if type == "train":
+    if type == ParserType.TRAIN:
         parser.add_argument("--model_type", type=str, required=True)
         parser.add_argument("--epochs", type=int, required=True)
         parser.add_argument("--model_config", type=str, required=True)
@@ -44,6 +50,7 @@ def init_parser(type: str) -> ArgumentParser:
         parser.add_argument("--output_path", type=str, required=True)
         parser.add_argument("--batch_size", type=int, required=True)
         parser.add_argument("--duration", type=int, required=False, default=None)
+        parser.add_argument("--sr", type=int, required=False, default=44100)
     return parser
 
 
