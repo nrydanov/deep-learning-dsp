@@ -71,7 +71,7 @@ def init_device(device: str) -> torch.device:
 
 def init_logger(args) -> None:
     # TODO Add proper logging configuration
-    FORMAT = "[%(asctime)s] %(message)s"
+    FORMAT = "[%(levelname)s] [%(asctime)s] %(message)s"
     logging.basicConfig(format=FORMAT, datefmt="%m-%d %H:%M:%S", force=True)
     logging.getLogger().setLevel(logging.INFO)
 
