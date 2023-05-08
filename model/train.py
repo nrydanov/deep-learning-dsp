@@ -83,6 +83,7 @@ def main():
         total_loss = 0
         with torch.no_grad():
             for inputs, targets in val_loader:
+                    
                 targets = targets.to(device)
                 inputs = inputs.to(device)
 
