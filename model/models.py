@@ -41,11 +41,25 @@ class BaselineRNN(Module):
             pass
 
     def forward(self, x0: torch.Tensor) -> torch.Tensor:
-        x, (h_n, c_n) = self.lstm(x0, self.initial_state)
-        x = self.linear(x)
-        
+        if self.training:
+            x, (h_n, c_n) = self.lstm(x0)
+        else:
+            if self.initial_state is None:
+                x, (h_n, c_n) = self.lstm(x0)
+            else:
+                x, (h_n, c_n) = self.lstm(x0, self.initial_state)
+                
         self.initial_state = (h_n, c_n)
+        x = self.linear(x)
         return torch.add(x, x0)
+    
+    def train(self, mode = True):
+        self.initial_state = None
+        return super().train(mode)
+    
+    def eval(self):
+        self.initial_state = None
+        return super().eval()
 
     def get_provider(self):
         return WaveformDataset
