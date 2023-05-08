@@ -82,7 +82,7 @@ Example is available in `entrypoint.sh` file.
 
 ## Inference 
 
-To inference use `inference.py` script located in `model` folder with following arguments:
+To inference use `inference.py` script in `model` folder with following arguments:
 
 1. `--model_type` — one of defined in `models.py` models
 2. `--model_config` — path to config for this model

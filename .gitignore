@@ -6,6 +6,8 @@ data/*
 !data/download.sh
 checkpoints/*
 logs/*
+config/*
+!config/example
 *.wav
 
 # Poetry

@@ -8,6 +8,7 @@ from torch.nn import (
     LSTM,
     Linear,
     Conv2d,
+    Conv1d,
     Dropout,
     BatchNorm1d,
     Sequential,
@@ -32,7 +33,8 @@ class BaselineRNN(Module):
 
         self.lstm = LSTM(1, hidden_size, batch_first=True)
         self.linear = Linear(hidden_size, 1)
-        self.initial_state = None
+        self.h_0 = None
+        self.c_0 = None
 
     class Settings(BaseSettings):
         hidden_size: int
@@ -44,21 +46,22 @@ class BaselineRNN(Module):
         if self.training:
             x, (h_n, c_n) = self.lstm(x0)
         else:
-            if self.initial_state is None:
+            if self.h_0 is None:
                 x, (h_n, c_n) = self.lstm(x0)
             else:
-                x, (h_n, c_n) = self.lstm(x0, self.initial_state)
+                batch_size = x0.size(dim=0)
+                x, (h_n, c_n) = self.lstm(x0, (self.h_0[:, :batch_size, :], self.c_0[:, :batch_size, :]))
 
-        self.initial_state = (h_n, c_n)
+        self.h_0, self.c_0 = (h_n.detach(), c_n.detach())
         x = self.linear(x)
         return torch.add(x, x0)
 
     def train(self, mode=True):
-        self.initial_state = None
+        self.h_0, self.c_0 = None, None
         return super().train(mode)
 
     def eval(self):
-        self.initial_state = None
+        self.h_0, self.c_0 = None, None
         return super().eval()
 
     def get_provider(self):
@@ -66,20 +69,36 @@ class BaselineRNN(Module):
 
 
 class BaselineRNN2(Module):
-    def __init__(self, hidden_size) -> None:
+    def __init__(self, config) -> None:
         super().__init__()
-
+        
+        hidden_size = config.hidden_size
+        
         self.seq = Sequential(
-            Conv2d(1, 32, 5, 3, padding_mode="zeros"),
-            Conv2d(32, 32, 5, 3, padding_mode="zeros"),
-            LSTM(32, hidden_size),
+            
+            Conv1d(1, 32, 5, 3, padding_mode="zeros"),
+            Conv1d(32, 32, 5, 3, padding_mode="zeros"),
+        )
+        
+        self.seq2 = Sequential(
+            LSTM(1, hidden_size, batch_first=True),
             Dropout(p=0.2, inplace=True),
             BatchNorm1d(hidden_size),
             Linear(hidden_size, 1),
         )
+        
+    class Settings(BaseSettings):
+        hidden_size: int
+
+        class Config:
+            pass
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.seq(x)
+        result = self.seq(x)
+        
+        result = torch.transpose(result, 1, 2)
+        
+        return result
 
 
 class UNetSTFT(Module):

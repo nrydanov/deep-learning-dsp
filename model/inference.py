@@ -1,5 +1,6 @@
 import torch
 import librosa
+import logging
 import numpy as np
 
 from tqdm import tqdm
@@ -22,19 +23,22 @@ def main():
     model.load_state_dict(torch.load(args.checkpoint)["model"])
     model.to(device)
 
+    logging.info("Loading input")
     data, _ = librosa.load(args.input, sr=args.sr, duration=args.duration)
 
     model.eval()
+    logging.info("Starting inference loop")
     with torch.no_grad():
         result = np.array([], dtype=np.float32)
         for i in tqdm(range(0, data.shape[0], args.batch_size)):
-            inputs = torch.tensor(data[i : i + args.batch_size].reshape(-1, 1)).to(
+            inputs = torch.tensor(data[i : i + args.batch_size].reshape(1, -1, 1)).to(
                 device
             )
             outputs = model(inputs)
 
             result = np.append(result, outputs.cpu().numpy())
-        wavfile.write(args.output_path, args.sr, result.reshape(-1, 1))
+        logging.info("Writing model output to file")
+        wavfile.write(args.output, args.sr, result.reshape(-1, 1))
 
 
 if __name__ == "__main__":

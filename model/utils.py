@@ -56,7 +56,7 @@ def init_parser(type: ParserType) -> ArgumentParser:
 
 def init_device(device: str) -> torch.device:
     if device is not None:
-        logging.info(f"Using device from command line: {device}")
+        logging.info(f"Using device from command line: \"{device}\"")
         return torch.device(device)
     else:
         if torch.backends.mps.is_available() and torch.backends.mps.is_built():
@@ -66,7 +66,7 @@ def init_device(device: str) -> torch.device:
         else:
             name = "cpu"
         logging.info(
-            f"Device is not provided, selected {device} based on current environment"
+            f"Device is not provided, selecting \"{name}\" based on current environment"
         )
         return torch.device(name)
 
