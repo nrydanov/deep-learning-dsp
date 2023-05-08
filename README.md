@@ -74,10 +74,9 @@ To train model run `train.py` script in `model` folder with following arguments:
 9.  `--restore_state` — path to `.pt` file with checkpoint [Optional]
 
     Default: `None`
-10. `--level` — logging level
+10. `--level` — logging level [Optional]
 
     Default: `INFO`
-11. [Optional]
 
 Example is available in `entrypoint.sh` file.
 
