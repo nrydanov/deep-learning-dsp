@@ -45,10 +45,10 @@ def init_parser(type: ParserType) -> ArgumentParser:
         parser.add_argument("--model_type", type=str, required=True)
         parser.add_argument("--model_config", type=str, required=True)
         parser.add_argument("--checkpoint", type=str, required=True)
-        parser.add_argument("--device", type=str, required=True)
         parser.add_argument("--input", type=str, required=True)
-        parser.add_argument("--output_path", type=str, required=True)
-        parser.add_argument("--batch_size", type=int, required=True)
+        parser.add_argument("--output", type=str, required=True)
+        parser.add_argument("--device", type=str, required=False)
+        parser.add_argument("--batch_size", type=int, required=False, default=65536)
         parser.add_argument("--duration", type=int, required=False, default=None)
         parser.add_argument("--sr", type=int, required=False, default=44100)
     return parser
