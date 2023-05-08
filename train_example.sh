@@ -8,4 +8,3 @@ poetry run python3 model/train.py \
         --learning_rate=0.001 \
         --batch_size=64 \
         --attempt_name=baseline_rnn92 \
-        --device=$TORCH_DEVICE

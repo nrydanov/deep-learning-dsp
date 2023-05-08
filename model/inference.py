@@ -28,9 +28,11 @@ def main():
     with torch.no_grad():
         result = np.array([], dtype=np.float32)
         for i in tqdm(range(0, data.shape[0], args.batch_size)):
-            inputs = torch.tensor(data[i: i + args.batch_size].reshape(-1, 1)).to(device)
-            outputs  = model(inputs)
-            
+            inputs = torch.tensor(data[i : i + args.batch_size].reshape(-1, 1)).to(
+                device
+            )
+            outputs = model(inputs)
+
             result = np.append(result, outputs.cpu().numpy())
         wavfile.write(args.output_path, args.sr, result.reshape(-1, 1))
 

@@ -48,15 +48,15 @@ class BaselineRNN(Module):
                 x, (h_n, c_n) = self.lstm(x0)
             else:
                 x, (h_n, c_n) = self.lstm(x0, self.initial_state)
-                
+
         self.initial_state = (h_n, c_n)
         x = self.linear(x)
         return torch.add(x, x0)
-    
-    def train(self, mode = True):
+
+    def train(self, mode=True):
         self.initial_state = None
         return super().train(mode)
-    
+
     def eval(self):
         self.initial_state = None
         return super().eval()

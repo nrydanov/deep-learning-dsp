@@ -25,7 +25,7 @@ def output_to_audio(data: np.ndarray, **kwargs) -> np.ndarray[np.float32]:
 class ParserType(Enum):
     TRAIN = "train"
     INFERENCE = "inference"
-    
+
 
 def init_parser(type: ParserType) -> ArgumentParser:
     logging.info("Initializing parser")
@@ -65,7 +65,9 @@ def init_device(device: str) -> torch.device:
             name = "cuda"
         else:
             name = "cpu"
-        logging.info(f"Device is not provided, selecting automatically: {device}")
+        logging.info(
+            f"Device is not provided, selected {device} based on current environment"
+        )
         return torch.device(name)
 
 
