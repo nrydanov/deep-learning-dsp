@@ -5,7 +5,7 @@ FROM --platform=$PLATFORM python:3.10-bullseye as builder
 ARG PLATFORM
 ARG DEVICE
 ARG GPU_REQUIRED=0
-ENV WD_NAME=/guitar-emulation
+ENV WD_NAME=/guitar-effects-emulation
 
 ENV PIP_DEFAULT_TIMEOUT=100 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
@@ -37,6 +37,6 @@ RUN pip install poetry==${POETRY_VERSION} \
 
 COPY model $WD_NAME/model
 COPY config $WD_NAME/config
-COPY entrypoint.sh $WD_NAME/entrypoint.sh
-RUN chmod +x $WD_NAME/entrypoint.sh
-# ENTRYPOINT /bin/bash $WD_NAME/entrypoint.sh
+# COPY entrypoint.sh $WD_NAME/train_example.sh
+# RUN chmod +x $WD_NAME/train_example.sh
+# ENTRYPOINT /bin/bash $WD_NAME/train_example.sh
