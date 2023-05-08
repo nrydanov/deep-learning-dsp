@@ -1,12 +1,12 @@
-import torch
-import librosa
 import logging
-import numpy as np
 
-from tqdm import tqdm
-from utils import init_parser, init_device, init_logger, ParserType
+import librosa
+import numpy as np
+import torch
 from models import get_model
 from scipy.io import wavfile
+from tqdm import tqdm
+from utils import ParserType, init_device, init_logger, init_parser
 
 
 def main():

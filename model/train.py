@@ -1,13 +1,13 @@
-import torch
-import os
 import logging
+import os
 
-from torch.utils.data import DataLoader, random_split
-from torch.optim import Adam
-from torch.nn import MSELoss
+import torch
 from models import get_model
-from utils import init_parser, init_device, init_logger, save_history, ParserType
+from torch.nn import MSELoss
+from torch.optim import Adam
+from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
+from utils import ParserType, init_device, init_logger, init_parser, save_history
 
 
 def main():
@@ -83,7 +83,6 @@ def main():
         total_loss = 0
         with torch.no_grad():
             for inputs, targets in val_loader:
-                    
                 targets = targets.to(device)
                 inputs = inputs.to(device)
 
