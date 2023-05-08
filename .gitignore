@@ -1,14 +1,16 @@
-__pycache__
+# Python
+*__pycache__
 
+# Project
 data
 checkpoints
-keras
-startup.sh
 logs
+*.wav
 
+# Poetry
 poetry.lock
-archive
 
+# Dotfiles
 .*
 !.gitignore
 

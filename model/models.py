@@ -41,14 +41,15 @@ class BaselineRNN(Module):
             pass
 
     def forward(self, x0: torch.Tensor) -> torch.Tensor:
-        if self.training or (not self.training and self.initial_state is None):
+        if self.training:
             x, (h_n, c_n) = self.lstm(x0)
         else:
-            batch_size = x0.size(dim=0)
-            x, (h_n, c_n) = self.lstm(x0, (self.initial_state[0][:,:batch_size,:],
-                                           self.initial_state[1][:,:batch_size,:]))
+            if self.initial_state is None:
+                x, (h_n, c_n) = self.lstm(x0)
+            else:
+                x, (h_n, c_n) = self.lstm(x0, self.initial_state)
+                
         self.initial_state = (h_n, c_n)
-        
         x = self.linear(x)
         return torch.add(x, x0)
     
