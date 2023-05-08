@@ -1,14 +1,14 @@
+import logging
+import os
+from argparse import ArgumentParser
+from dataclasses import fields
+from enum import Enum
+from typing import Dict
+
 import numpy as np
 import pandas as pd
 import torch
-import logging
-import os
-
-from dataclasses import fields
 from librosa import istft
-from argparse import ArgumentParser
-from typing import Dict
-from enum import Enum
 
 
 def get_required_for(cls, kwargs: Dict[str, object]) -> Dict[str, object]:
@@ -56,7 +56,7 @@ def init_parser(type: ParserType) -> ArgumentParser:
 
 def init_device(device: str) -> torch.device:
     if device is not None:
-        logging.info(f"Using device from command line: \"{device}\"")
+        logging.info(f'Using device from command line: "{device}"')
         return torch.device(device)
     else:
         if torch.backends.mps.is_available() and torch.backends.mps.is_built():
@@ -66,7 +66,7 @@ def init_device(device: str) -> torch.device:
         else:
             name = "cpu"
         logging.info(
-            f"Device is not provided, selecting \"{name}\" based on current environment"
+            f'Device is not provided, selecting "{name}" based on current environment'
         )
         return torch.device(name)
 

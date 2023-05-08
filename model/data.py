@@ -1,10 +1,8 @@
 import librosa
 import numpy as np
-
+from pydantic import BaseSettings
 from torch.utils.data import Dataset
 from torchaudio.transforms import Spectrogram
-
-from pydantic import BaseSettings
 
 
 class BaseDataset(Dataset):
