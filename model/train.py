@@ -48,11 +48,11 @@ def main():
     train_provider, val_provider = random_split(provider, [0.8, 0.2])
 
     train_loader = DataLoader(train_provider, batch_size=args.batch_size, shuffle=True)
-    val_loader = DataLoader(val_provider, batch_size=args.batch_size, shuffle=True)
+    val_loader = DataLoader(val_provider, batch_size=args.batch_size, shuffle=False)
 
     loss = MSELoss()
 
-    n_val = len(val_loader)
+    n_val = len(train_loader)
 
     logging.info("Starting training loop")
     for epoch in range(last_epoch + 1, args.epochs):
