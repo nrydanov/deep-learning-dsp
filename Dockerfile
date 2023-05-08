@@ -1,18 +1,20 @@
 ARG PLATFORM="amd64"
 ARG DEVICE="gpu"
+ARG WD_NAME=/guitar-effects-emulation
 
 FROM --platform=$PLATFORM python:3.10-bullseye as builder
 ARG PLATFORM
 ARG DEVICE
 ARG GPU_REQUIRED=0
-ENV WD_NAME=/guitar-emulation
+ARG WD_NAME
 
 ENV PIP_DEFAULT_TIMEOUT=100 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     POETRY_VERSION=1.4.1 \
+    POETRY_CACHE_DIR=/tmp/poetry_cache \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
     TORCH_DEVICE=$DEVICE
 
-RUN apt update && apt install -y libsndfile1-dev
 RUN if [ "$PLATFORM" = "amd64" ] && [ "$DEVICE" = "gpu" ]; \
         then \
             distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
@@ -29,14 +31,22 @@ RUN if [ "$PLATFORM" = "amd64" ] && [ "$DEVICE" = "gpu" ]; \
 WORKDIR $WD_NAME
 
 COPY poetry.lock pyproject.toml $WD_NAME
-
 RUN pip install poetry==${POETRY_VERSION} \
-        && poetry config installer.max-workers 10 \
-        && poetry install --no-dev --no-interaction --no-ansi -vvv
+        && poetry install --no-dev --no-root --no-interaction --no-ansi
 
+FROM python:3.10-slim-bullseye as runtime
+ARG WD_NAME
+
+RUN apt update && apt install -y libgomp1 libsndfile-dev
+
+ENV VIRTUAL_ENV=$WD_NAME/.venv \
+    PATH=$WD_NAME/.venv/bin:$PATH
+
+COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
 COPY model $WD_NAME/model
 COPY config $WD_NAME/config
-COPY entrypoint.sh $WD_NAME/entrypoint.sh
-RUN chmod +x $WD_NAME/entrypoint.sh
+
+COPY train_example.sh $WD_NAME/train_example.sh
+RUN chmod +x $WD_NAME/train_example.sh
 # ENTRYPOINT /bin/bash $WD_NAME/entrypoint.sh
