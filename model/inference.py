@@ -7,6 +7,7 @@ from models import get_model
 from scipy.io import wavfile
 from tqdm import tqdm
 from utils import ParserType, init_device, init_logger, init_parser
+from torch.nn import MSELoss
 
 
 def main():
@@ -37,8 +38,16 @@ def main():
             outputs = model(inputs)
 
             result = np.append(result, outputs.cpu().numpy())
-        logging.info("Writing model output to file")
-        wavfile.write(args.output, args.sr, result.reshape(-1, 1))
+            
+    if args.test is not None:
+        test, _ = librosa.load(args.test, sr=args.sr, duration=args.duration)
+        
+        loss = MSELoss()
+        total_loss = loss(torch.tensor(result).cpu(), torch.tensor(test).cpu())
+        print(f"Test loss: {total_loss}")
+        
+    logging.info("Writing model output to file")
+    wavfile.write(args.output, args.sr, result.reshape(-1, 1))
 
 
 if __name__ == "__main__":

@@ -43,6 +43,7 @@ class WaveformDataset(BaseDataset):
         self.config = config
 
         self.x, self.y = [], []
+        np.random.seed(69)
         for _ in range(config.total_samples):
             x_cur, y_cur = self.__generate_sample__()
 
