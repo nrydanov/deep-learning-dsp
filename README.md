@@ -35,7 +35,7 @@ To build in Docker:
 - `PLATFORM` — target platform of docker image. Expected values: `arm64/amd64/etc`
 - `DEVICE` — inferencing device. Expected values: `cpu/cuda/mps`
 
-Currently GPU computations is only available on `amd64` platform with `cuda` support.
+Currently GPU computations are only available on `amd64` platform with `cuda` support.
 
 ## Prepare data
 
