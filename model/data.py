@@ -77,7 +77,7 @@ class STFTDataset(WaveformDataset):
     def __generate_sample__(self):
         x_cur, y_cur = super().__generate_sample__()
 
-        x_cur = (Spectrogram(**self.kwargs)(x_cur),)
+        x_cur = Spectrogram(**self.kwargs)(x_cur)
         y_cur = Spectrogram(**self.kwargs)(y_cur)
 
         return x_cur[None, :], y_cur[None, :]

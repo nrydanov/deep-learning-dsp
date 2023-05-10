@@ -1,5 +1,6 @@
 import logging
 import os
+from time import time
 
 import torch
 from models import get_model
@@ -8,7 +9,6 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 from utils import ParserType, init_device, init_logger, init_parser, save_history
-from time import time
 
 
 def main():
@@ -54,9 +54,7 @@ def main():
     val_loader = DataLoader(val_provider, batch_size=args.batch_size, shuffle=False)
 
     loss = MSELoss()
-
     n_val = len(train_loader)
-
     logging.info("Starting training loop")
     for epoch in range(last_epoch + 1, args.epochs):
         model.train()
@@ -81,7 +79,6 @@ def main():
             loop.set_postfix(loss=total_loss / (i + 1))
         train_time = time() - start_time
         train_loss = total_loss / len(train_loader)
-        
 
         model.eval()
         total_loss = 0
@@ -127,15 +124,12 @@ def main():
             "train_loss": train_loss,
             "val_loss": val_loss,
             "epoch": epoch,
-            "train_time" : train_time
+            "train_time": train_time,
         }
 
         save_history(args.attempt_name, history)
         loop.set_postfix(val_loss=val_loss)
-        
-    
 
-    
 
 if __name__ == "__main__":
     main()
