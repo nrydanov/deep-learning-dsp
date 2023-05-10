@@ -14,19 +14,21 @@ class BaseModel(Module):
         return NotImplementedError()
 
 
-class BaselineRNN(Module):
+class BaselineLSTM(Module):
     def __init__(self, config) -> None:
         super().__init__()
 
         hidden_size = config.hidden_size
+        input_size = config.input_size
 
-        self.lstm = LSTM(1, hidden_size, batch_first=True)
+        self.lstm = LSTM(input_size, hidden_size, batch_first=True)
         self.linear = Linear(hidden_size, 1)
         self.h_0 = None
         self.c_0 = None
 
     class Settings(BaseSettings):
         hidden_size: int
+        input_size: int
 
         class Config:
             pass
