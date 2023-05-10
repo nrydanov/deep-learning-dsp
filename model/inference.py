@@ -41,11 +41,11 @@ def main():
 
     if args.test is not None:
         test, _ = librosa.load(args.test, sr=args.sr, duration=args.duration)
-        
+
         loss = MSELoss()
         total_loss = loss(torch.tensor(result).cpu(), torch.tensor(test).cpu())
         print(f"Test loss: {total_loss}")
-        
+
     logging.info("Writing model output to file")
     wavfile.write(args.output, args.sr, result.reshape(-1, 1))
 

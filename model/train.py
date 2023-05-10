@@ -130,5 +130,6 @@ def main():
         save_history(args.attempt_name, history)
         loop.set_postfix(val_loss=val_loss)
 
+
 if __name__ == "__main__":
     main()

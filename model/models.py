@@ -4,15 +4,7 @@ import sys
 
 import torch
 from pydantic import BaseSettings
-from torch.nn import (
-    LSTM,
-    BatchNorm1d,
-    Conv1d,
-    Dropout,
-    Linear,
-    Module,
-    Sequential,
-)
+from torch.nn import LSTM, BatchNorm1d, Conv1d, Dropout, Linear, Module, Sequential
 
 from data import BaseDataset, WaveformDataset
 
