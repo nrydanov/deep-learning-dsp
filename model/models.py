@@ -8,12 +8,8 @@ from torch.nn import (
     LSTM,
     BatchNorm1d,
     Conv1d,
-    Conv2d,
-    ConvTranspose2d,
     Dropout,
     Linear,
-    MaxPool2d,
-    MaxUnpool2d,
     Module,
     Sequential,
 )
@@ -101,38 +97,6 @@ class BaselineRNN2(Module):
         result = torch.transpose(result, 1, 2)
 
         return result
-
-
-class UNetSTFT(Module):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.conv1 = Conv2d(1, 32, 8, 4)
-        self.maxpool1 = MaxPool2d(2, return_indices=True)
-        self.conv2 = Conv2d(32, 64, 4, 2)
-        self.maxpool2 = MaxPool2d(2, return_indices=True)
-        self.conv3 = Conv2d(64, 128, 2, 1)
-
-        self.tconv3 = ConvTranspose2d(128, 64, 2)
-        self.unpool2 = MaxUnpool2d(2)
-        self.tconv2 = ConvTranspose2d(64, 32, 4, 2)
-        self.unpool1 = MaxUnpool2d(2)
-        self.tconv1 = ConvTranspose2d(32, 1, 8, 4)
-
-    def forward(self, x0: torch.Tensor) -> torch.Tensor:
-        x1 = self.conv1(x0)
-        x2, ind2 = self.maxpool1(x1)
-        x3 = self.conv2(x2)
-        x4, ind4 = self.maxpool2(x3)
-        x5 = self.conv3(x4)
-
-        x4b = torch.add(self.tconv3(x5), x4)
-        x3b = torch.add(self.unpool2(x4b, indices=ind4, output_size=x3.size()), x3)
-        x2b = torch.add(self.tconv2(x3b, output_size=x2.size()), x2)
-        x1b = torch.add(self.unpool1(x2b, indices=ind2, output_size=x1.size()), x1)
-        x0b = torch.add(self.tconv1(x1b, output_size=x0.size()), x0)
-
-        return x0b
 
 
 def get_model(name: str):

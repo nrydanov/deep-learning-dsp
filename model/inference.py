@@ -5,9 +5,9 @@ import numpy as np
 import torch
 from models import get_model
 from scipy.io import wavfile
+from torch.nn import MSELoss
 from tqdm import tqdm
 from utils import ParserType, init_device, init_logger, init_parser
-from torch.nn import MSELoss
 
 
 def main():
@@ -21,7 +21,7 @@ def main():
     model_config = model.Settings(_env_file=args.model_config)
     model: torch.Module = model(model_config)
 
-    model.load_state_dict(torch.load(args.checkpoint)["model"])
+    model.load_state_dict(torch.load(args.checkpoint)["best_model"])
     model.to(device)
 
     logging.info("Loading input")
@@ -38,7 +38,7 @@ def main():
             outputs = model(inputs)
 
             result = np.append(result, outputs.cpu().numpy())
-            
+
     if args.test is not None:
         test, _ = librosa.load(args.test, sr=args.sr, duration=args.duration)
         
