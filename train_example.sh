@@ -1,7 +1,7 @@
 #!/bin/sh
 
 poetry run python3 model/train.py \
-        --model_type=BaselineRNN \
+        --model_type=BaselineLSTM \
         --epochs=100 \
         --model_config=config/example/model.cfg \
         --data_config=config/example/data.cfg \
