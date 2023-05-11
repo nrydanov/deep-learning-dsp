@@ -19,7 +19,7 @@ def main():
 
     model = get_model(args.model_type)
     model_config = model.Settings(_env_file=args.model_config)
-    model: torch.Module = model(model_config)
+    model = model(model_config)
     model.to(device)
 
     optimizer = Adam(model.parameters(), args.learning_rate)

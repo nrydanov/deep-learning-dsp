@@ -4,9 +4,12 @@ from pydantic import BaseSettings
 from torch.utils.data import Dataset
 from torchaudio.transforms import Spectrogram
 
+from torch import tensor
+from typing import Tuple
+
 
 class BaseDataset(Dataset):
-    def __init__(self, config) -> None:
+    def __init__(self, config: BaseSettings) -> None:
         raise NotImplementedError()
 
     class Settings(BaseSettings):
@@ -25,7 +28,7 @@ class WaveformDataset(BaseDataset):
     input: str = None
     output: str = None
 
-    def __init__(self, config):
+    def __init__(self, config: BaseSettings) -> None:
         self.input, _ = librosa.load(
             path=config.in_path,
             sr=config.sample_rate,
@@ -53,13 +56,13 @@ class WaveformDataset(BaseDataset):
         self.x = np.array(self.x, dtype=np.float32)
         self.y = np.array(self.y, dtype=np.float32)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.config.total_samples
 
-    def __getitem__(self, i):
+    def __getitem__(self, i) -> Tuple[tensor, tensor]:
         return self.x[i], self.y[i]
 
-    def __generate_sample__(self):
+    def __generate_sample__(self) -> Tuple[tensor, tensor]:
         time = np.random.randint(self.input.shape[0] - self.config.sample_rate // 2)
 
         x_cur = self.input[time : time + self.config.sample_rate // 2]
@@ -74,7 +77,7 @@ class STFTDataset(WaveformDataset):
 
         self.kwargs = kwargs
 
-    def __generate_sample__(self):
+    def __generate_sample__(self) -> Tuple[tensor, tensor]:
         x_cur, y_cur = super().__generate_sample__()
 
         x_cur = Spectrogram(**self.kwargs)(x_cur)
