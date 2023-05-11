@@ -32,7 +32,7 @@ def main():
         last_epoch = checkpoint["last_epoch"]
         best_loss = checkpoint["best_loss"]
         logging.info("Successfully loaded state from checkpoint")
-    elif os.path.exists(save_path):
+    elif os.path.exists(save_path) and not args.overwrite:
         logging.error(
             "Attempt with such name is already exists, choose a different one"
         )
