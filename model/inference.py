@@ -19,7 +19,7 @@ def main():
     model = get_model(args.model_type)
 
     model_config = model.Settings(_env_file=args.model_config)
-    model: torch.Module = model(model_config)
+    model = model(model_config)
 
     model.load_state_dict(torch.load(args.checkpoint)["best_model"])
     model.to(device)

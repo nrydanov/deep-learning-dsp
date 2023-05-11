@@ -10,7 +10,6 @@ from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 from utils import ParserType, init_device, init_logger, init_parser, save_history
 
-
 def main():
     parser = init_parser(ParserType.TRAIN)
     args = parser.parse_args()
@@ -90,6 +89,7 @@ def main():
                 outputs = model(inputs)
                 val_loss = loss(outputs, targets)
                 total_loss += val_loss.item()
+                
         val_loss = total_loss / n_val
 
         save_path = f"checkpoints/{args.attempt_name}.pt"
