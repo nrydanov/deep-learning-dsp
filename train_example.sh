@@ -1,6 +1,6 @@
 #!/bin/sh
 
-poetry run python3 model/train.py \
+poetry run python3 nn/train.py \
         --model_type=BaselineLSTM \
         --epochs=100 \
         --model_config=config/example/model.cfg \

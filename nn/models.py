@@ -2,7 +2,7 @@ import inspect
 import logging
 import sys
 
-from typing import Type
+from typing import Type, Optional
 
 import torch
 from pydantic import BaseSettings
@@ -49,11 +49,11 @@ class BaselineLSTM(Module):
         x = self.linear(x)
         return torch.add(x, x0)
 
-    def train(self, mode=True) -> None:
+    def train(self, mode=True):
         self.h_0, self.c_0 = None, None
         return super().train(mode)
 
-    def eval(self) -> None:
+    def eval(self):
         self.h_0, self.c_0 = None, None
         return super().eval()
 
@@ -96,11 +96,11 @@ class FourierLSTM(Module):
         x = self.linear(x)
         return torch.add(x, x0)
 
-    def train(self, mode=True) -> None:
+    def train(self, mode=True):
         self.h_0, self.c_0 = None, None
         return super().train(mode)
 
-    def eval(self) -> None:
+    def eval(self):
         self.h_0, self.c_0 = None, None
         return super().eval()
 
@@ -108,7 +108,7 @@ class FourierLSTM(Module):
         return STFTDataset
 
 
-def get_model(name: str) -> Type[BaseModel]:
+def get_model(name: str) -> Optional[Type[BaseModel]]:
     logging.info(f"Selecting model: {name}")
     is_class_member = (
         lambda member: inspect.isclass(member) and member.__module__ == __name__
@@ -118,3 +118,5 @@ def get_model(name: str) -> Type[BaseModel]:
     for entry in models:
         if entry[0] == name:
             return entry[1]
+
+    return None

@@ -10,19 +10,17 @@ from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 from utils import ParserType, init_device, init_logger, init_parser, save_history
 
+
 def main():
     parser = init_parser(ParserType.TRAIN)
     args = parser.parse_args()
     init_logger(args)
     device = init_device(args.device)
-
     model = get_model(args.model_type)
     model_config = model.Settings(_env_file=args.model_config)
     model = model(model_config)
     model.to(device)
-
     optimizer = Adam(model.parameters(), args.learning_rate)
-
     save_path = f"checkpoints/{args.attempt_name}.pt"
     if args.restore_state is not None and args.restore_state:
         logging.info("Loading state from checkpoint")
@@ -43,7 +41,6 @@ def main():
 
     provider = model.get_provider()
     data_config = provider.Settings(args.data_config)
-    logging.info(f"Generating {data_config.total_samples} samples based on input")
     provider = provider(data_config)
 
     torch.manual_seed(69)
@@ -89,7 +86,7 @@ def main():
                 outputs = model(inputs)
                 val_loss = loss(outputs, targets)
                 total_loss += val_loss.item()
-                
+
         val_loss = total_loss / n_val
 
         save_path = f"checkpoints/{args.attempt_name}.pt"
