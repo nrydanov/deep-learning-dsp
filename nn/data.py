@@ -56,8 +56,8 @@ class WaveformDataset(BaseDataset):
         x, y = [], []
         step = self.config.sample_rate // 2
         for i in range(0, len(self.input), step):
-            x_cur = self.input[i : i + step]
-            y_cur = self.output[i : i + step]
+            x_cur = self.input[i:i + step]
+            y_cur = self.output[i:i + step]
             x.append(x_cur.reshape(-1, 1))
             y.append(y_cur.reshape(-1, 1))
 
@@ -81,7 +81,7 @@ class STFTDataset(WaveformDataset):
             list(
                 map(
                     conversion,
-                    self.x.reshape(5000, -1),
+                    self.x.reshape(self.x.shape[0], -1),
                 )
             )
         )
@@ -90,7 +90,7 @@ class STFTDataset(WaveformDataset):
             list(
                 map(
                     conversion,
-                    self.y.reshape(5000, -1),
+                    self.y.reshape(self.x.shape[0], -1),
                 )
             )
         )
