@@ -22,6 +22,7 @@ def main():
     model.to(device)
     optimizer = Adam(model.parameters(), args.learning_rate)
     save_path = f"checkpoints/{args.attempt_name}.pt"
+
     if args.restore_state is not None and args.restore_state:
         logging.info("Loading state from checkpoint")
         checkpoint = torch.load(save_path)

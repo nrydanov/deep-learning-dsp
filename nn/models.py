@@ -8,7 +8,7 @@ import torch
 from pydantic import BaseSettings
 from torch.nn import LSTM, Linear, Module
 
-from data import BaseDataset, WaveformDataset, STFTDataset
+from datasets import BaseDataset, WaveformDataset, STFTDataset
 
 
 class BaseModel(Module):

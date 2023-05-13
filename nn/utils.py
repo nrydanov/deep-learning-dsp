@@ -33,7 +33,7 @@ def init_parser(type: ParserType) -> ArgumentParser:
     if type == ParserType.TRAIN:
         parser.add_argument("--model_type", type=str, required=True)
         parser.add_argument("--epochs", type=int, required=True)
-        parser.add_argument("--model_config", type=str, required=True)
+        parser.add_argument("--model_config", type=str, required=True) 
         parser.add_argument("--data_config", type=str, required=True)
         parser.add_argument("--learning_rate", type=float, required=True)
         parser.add_argument("--batch_size", type=int, required=True)
@@ -45,6 +45,7 @@ def init_parser(type: ParserType) -> ArgumentParser:
     else:
         parser.add_argument("--model_type", type=str, required=True)
         parser.add_argument("--model_config", type=str, required=True)
+        parser.add_argument("--data_config", type=str, required=True)
         parser.add_argument("--checkpoint", type=str, required=True)
         parser.add_argument("--input", type=str, required=True)
         parser.add_argument("--output", type=str, required=True)

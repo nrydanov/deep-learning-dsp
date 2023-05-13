@@ -14,7 +14,7 @@ def main():
     parser = init_parser(ParserType.INFERENCE)
     args = parser.parse_args()
     init_logger(args)
-    device: torch.device = init_device(args.device)
+    device = init_device(args.device)
 
     model = get_model(args.model_type)
 
@@ -24,6 +24,11 @@ def main():
     model.load_state_dict(torch.load(args.checkpoint)["best_model"])
     model.to(device)
 
+    provider = model.get_provider()
+    config = provider.Settings(args.data_config)
+
+    converter = provider.Converter(config)
+
     logging.info("Loading input")
     data, _ = librosa.load(args.input, sr=args.sr, duration=args.duration)
 
@@ -32,16 +37,16 @@ def main():
     with torch.no_grad():
         result = np.array([], dtype=np.float32)
         for i in tqdm(range(0, data.shape[0], args.batch_size)):
-            inputs = torch.tensor(data[i : i + args.batch_size].reshape(1, -1, 1)).to(
-                device
-            )
+            encoded = converter.encode(data[i : i + args.batch_size].reshape(1, -1, 1))
+            inputs = torch.tensor(encoded).to(device)
+            print(inputs.size())
             outputs = model(inputs)
-
-            result = np.append(result, outputs.cpu().numpy())
-
+            print(outputs.size())
+            decoded = converter.decode(outputs).reshape(-1)
+            print(decoded.shape)
+            result = np.append(result, decoded)
     if args.test is not None:
         test, _ = librosa.load(args.test, sr=args.sr, duration=args.duration)
-
         loss = MSELoss()
         total_loss = loss(torch.tensor(result).cpu(), torch.tensor(test).cpu())
         print(f"Test loss: {total_loss}")
