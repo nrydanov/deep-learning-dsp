@@ -16,15 +16,13 @@ def main():
     args = parser.parse_args()
     init_logger(args)
     device = init_device(args.device)
-
     model = get_model(args.model_type)
     model_config = model.Settings(_env_file=args.model_config)
-    model: torch.Module = model(model_config)
+    model = model(model_config)
     model.to(device)
-
     optimizer = Adam(model.parameters(), args.learning_rate)
-
     save_path = f"checkpoints/{args.attempt_name}.pt"
+
     if args.restore_state is not None and args.restore_state:
         logging.info("Loading state from checkpoint")
         checkpoint = torch.load(save_path)
@@ -33,7 +31,7 @@ def main():
         last_epoch = checkpoint["last_epoch"]
         best_loss = checkpoint["best_loss"]
         logging.info("Successfully loaded state from checkpoint")
-    elif os.path.exists(save_path):
+    elif os.path.exists(save_path) and not args.overwrite:
         logging.error(
             "Attempt with such name is already exists, choose a different one"
         )
@@ -44,7 +42,6 @@ def main():
 
     provider = model.get_provider()
     data_config = provider.Settings(args.data_config)
-    logging.info(f"Generating {data_config.total_samples} samples based on input")
     provider = provider(data_config)
 
     torch.manual_seed(69)
@@ -90,6 +87,7 @@ def main():
                 outputs = model(inputs)
                 val_loss = loss(outputs, targets)
                 total_loss += val_loss.item()
+
         val_loss = total_loss / n_val
 
         save_path = f"checkpoints/{args.attempt_name}.pt"

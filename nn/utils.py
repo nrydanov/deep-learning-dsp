@@ -41,9 +41,11 @@ def init_parser(type: ParserType) -> ArgumentParser:
         parser.add_argument("--device", type=str, required=False)
         parser.add_argument("--restore_state", type=bool, required=False)
         parser.add_argument("--level", type=str, required=False)
+        parser.add_argument("--overwrite", type=bool, required=False, default=False)
     else:
         parser.add_argument("--model_type", type=str, required=True)
         parser.add_argument("--model_config", type=str, required=True)
+        parser.add_argument("--data_config", type=str, required=True)
         parser.add_argument("--checkpoint", type=str, required=True)
         parser.add_argument("--input", type=str, required=True)
         parser.add_argument("--output", type=str, required=True)
