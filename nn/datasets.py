@@ -112,10 +112,10 @@ class STFTDataset(WaveformDataset):
                     n_fft=self.config.n_fft,
                     hop_length=self.config.hop_length,
                     win_length=self.config.win_length,
-                    n_iter=128
+                    n_iter=128,
                 )
 
-            result = np.array(conversion(outputs))
+            result = torch.tensor(conversion(outputs), dtype=torch.float32)
 
             return result
 
