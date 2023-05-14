@@ -1,4 +1,4 @@
-# Guitar effects emulation
+# Deep learning DSP
 
 Repository overview:
 
