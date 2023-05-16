@@ -9,11 +9,13 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 from utils import ParserType, init_device, init_logger, init_parser, save_history, init_loss
+from torch.utils.tensorboard import SummaryWriter
 
 def main():
     parser = init_parser(ParserType.TRAIN)
     args = parser.parse_args()
     init_logger(args)
+
     device = init_device(args.device)
     model = get_model(args.model_type)
     model_config = model.Settings(_env_file=args.model_config)
@@ -21,6 +23,8 @@ def main():
     model.to(device)
     optimizer = Adam(model.parameters(), args.learning_rate)
     save_path = f"checkpoints/{args.attempt_name}.pt"
+    writer = SummaryWriter(f'tensorboard/{args.attempt_name}')
+
 
     if args.restore_state is not None and args.restore_state:
         logging.info("Loading state from checkpoint")
@@ -118,14 +122,15 @@ def main():
                 save_path,
             )
         history = {
-            "train_loss": train_loss,
-            "val_loss": val_loss,
+            "loss/train": train_loss,
+            "loss/val": val_loss,
             "epoch": epoch,
-            "train_time": train_time,
         }
 
-        save_history(args.attempt_name, history)
+        save_history(writer, args.attempt_name, history)
         loop.set_postfix(val_loss=val_loss)
+
+    writer.close()
 
 
 if __name__ == "__main__":
