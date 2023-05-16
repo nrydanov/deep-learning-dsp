@@ -4,6 +4,9 @@ from argparse import ArgumentParser
 from dataclasses import fields
 from enum import Enum
 from typing import Dict
+import argparse
+from auraloss.time import ESRLoss
+from auraloss.time import DCLoss
 
 import numpy as np
 import pandas as pd
@@ -39,9 +42,10 @@ def init_parser(type: ParserType) -> ArgumentParser:
         parser.add_argument("--batch_size", type=int, required=True)
         parser.add_argument("--attempt_name", type=str, required=True)
         parser.add_argument("--device", type=str, required=False)
-        parser.add_argument("--restore_state", type=bool, required=False)
+        parser.add_argument("--restore_state", action=argparse.BooleanOptionalAction)
         parser.add_argument("--level", type=str, required=False)
         parser.add_argument("--overwrite", type=bool, required=False, default=False)
+        parser.add_argument("--loss", type=str, required=False, default='mse')
     else:
         parser.add_argument("--model_type", type=str, required=True)
         parser.add_argument("--model_config", type=str, required=True)
@@ -72,6 +76,17 @@ def init_device(device: str) -> torch.device:
             f'Device is not provided, selecting "{name}" based on current environment'
         )
         return torch.device(name)
+
+
+def init_loss(loss: str) -> torch.nn.Module:
+    match loss:
+        case "mse":
+            return torch.nn.MSELoss()
+        case "esr":
+            return ESRLoss()
+        case _:
+            raise ValueError("Got an unexpected loss function")
+
 
 
 def init_logger(args) -> None:
@@ -105,3 +120,4 @@ def save_history(attempt_name: str, history: dict):
     logs.loc[logs.shape[0]] = history.values()
 
     logs.to_csv(path, index_label="index")
+

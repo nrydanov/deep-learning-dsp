@@ -8,8 +8,7 @@ from torch.nn import MSELoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
-from utils import ParserType, init_device, init_logger, init_parser, save_history
-
+from utils import ParserType, init_device, init_logger, init_parser, save_history, init_loss
 
 def main():
     parser = init_parser(ParserType.TRAIN)
@@ -50,7 +49,7 @@ def main():
     train_loader = DataLoader(train_provider, batch_size=args.batch_size, shuffle=True)
     val_loader = DataLoader(val_provider, batch_size=args.batch_size, shuffle=False)
 
-    loss = MSELoss()
+    loss = init_loss(args.loss)
     n_val = len(train_loader)
     logging.info("Starting training loop")
     for epoch in range(last_epoch + 1, args.epochs):

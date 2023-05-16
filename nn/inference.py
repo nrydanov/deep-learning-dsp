@@ -54,7 +54,6 @@ def main():
                 expected = torch.cat(
                     (expected, torch.tensor(encoded, dtype=torch.float32).to(device)), 1
                 )
-            print(type(expected), type(result))
             total_loss = loss(expected, result).item()
             print(f"Test loss: {total_loss}")
 
