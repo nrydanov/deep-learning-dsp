@@ -5,7 +5,7 @@
 data/*
 !data/download.sh
 checkpoints/*
-logs/*
+tensorboard
 config/*
 !config/example
 *.wav

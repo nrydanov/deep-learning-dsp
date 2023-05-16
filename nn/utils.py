@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import torch
 from librosa import istft
+from torch.utils.tensorboard import SummaryWriter
 
 
 def get_required_for(cls, kwargs: Dict[str, object]) -> Dict[str, object]:
@@ -108,16 +109,10 @@ def empty_cache(device) -> None:
             raise ValueError("Got an unexpected device")
 
 
-def save_history(attempt_name: str, history: dict):
-    os.makedirs("logs", exist_ok=True)
+def save_history(writer: str, attempt_name: str, history: dict):
+    log_dir = f"tensorboard/{attempt_name}"
 
-    path = f"logs/{attempt_name}.csv"
-    try:
-        logs = pd.read_csv(path, index_col="index")
-    except OSError:
-        logs = pd.DataFrame(columns=history.keys())
-
-    logs.loc[logs.shape[0]] = history.values()
-
-    logs.to_csv(path, index_label="index")
-
+    for key, value in history.items():
+        if key == 'epoch':
+            continue
+        writer.add_scalar(key, value, history['epoch'])

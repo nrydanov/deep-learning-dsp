@@ -8,7 +8,7 @@ Repository overview:
 
     NOTE: This folder will be mounted into Docker container.
 
-4. `logs` — training logs information
+4. `tensorboard` — training logs information
 5. `checkpoints` — model training checkpoints
 6. `pyproject.toml` — poetry dependency file
 7. `train_example.sh` — training example 
