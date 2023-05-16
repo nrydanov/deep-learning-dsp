@@ -41,6 +41,8 @@ class WaveformDataset(BaseDataset):
             duration=config.duration,
         )
 
+        self.input = librosa.effects.preemphasis(self.input)
+
         self.config = config
 
         self.converter = WaveformDataset.Converter(self.config)

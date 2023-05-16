@@ -31,6 +31,7 @@ def main():
 
     logging.info("Loading input")
     data, _ = librosa.load(args.input, sr=args.sr, duration=args.duration)
+    data = librosa.effects.preemphasis(data)
 
     model.eval()
     logging.info("Starting inference loop")
@@ -54,7 +55,6 @@ def main():
                 expected = torch.cat(
                     (expected, torch.tensor(encoded, dtype=torch.float32).to(device)), 1
                 )
-            print(type(expected), type(result))
             total_loss = loss(expected, result).item()
             print(f"Test loss: {total_loss}")
 
