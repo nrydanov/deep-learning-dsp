@@ -59,6 +59,7 @@ def init_parser(type: ParserType) -> ArgumentParser:
         parser.add_argument("--duration", type=int, required=False, default=None)
         parser.add_argument("--sr", type=int, required=False, default=44100)
         parser.add_argument("--test", type=str, required=False)
+        parser.add_argument("--loss", type=str, required=False, default='mse')
     return parser
 
 

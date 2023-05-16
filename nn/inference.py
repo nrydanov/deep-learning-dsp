@@ -7,8 +7,7 @@ from models import get_model
 from scipy.io import wavfile
 from torch.nn import MSELoss
 from tqdm import tqdm
-from utils import ParserType, init_device, init_logger, init_parser
-
+from utils import ParserType, init_device, init_logger, init_parser, init_loss
 
 def main():
     parser = init_parser(ParserType.INFERENCE)
@@ -44,7 +43,7 @@ def main():
 
         if args.test is not None:
             logging.info("Starting train data inference")
-            loss = MSELoss()
+            loss = init_loss(args.loss)
             test_data, _ = librosa.load(args.test, sr=args.sr, duration=args.duration)
             expected = torch.tensor([], dtype=torch.float32).to(device)
             for i in tqdm(range(0, data.shape[0], args.batch_size)):
