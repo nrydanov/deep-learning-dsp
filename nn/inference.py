@@ -31,6 +31,7 @@ def main():
 
     logging.info("Loading input")
     data, _ = librosa.load(args.input, sr=args.sr, duration=args.duration)
+    data = librosa.effects.preemphasis(data)
 
     model.eval()
     logging.info("Starting inference loop")
