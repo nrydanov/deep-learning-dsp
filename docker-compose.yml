@@ -2,6 +2,15 @@ services:
   model-training:
     image: model-training
     volumes: 
-      - ./data:/guitar-emulation/data
+      - ./data:/guitar-effects-emulation/data
+      - ./config:/guitar-effects-emulation/config
+      - ./outputs:/guitar-effects-emulation/outputs
     build: .
     tty: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
