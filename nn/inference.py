@@ -7,7 +7,8 @@ from models import get_model
 from scipy.io import wavfile
 from torch.nn import MSELoss
 from tqdm import tqdm
-from utils import ParserType, init_device, init_logger, init_parser, init_loss
+from utils import ParserType, init_device, init_logger, init_loss, init_parser
+
 
 def main():
     parser = init_parser(ParserType.INFERENCE)
@@ -59,7 +60,13 @@ def main():
     result = converter.decode(result).reshape(-1)
 
     logging.info("Writing model output to file")
-    wavfile.write(args.output, args.sr, result.cpu().numpy().reshape(-1, 1))
+
+    if args.output is None:
+        output_path = f"outputs/{args.checkpoint.split('/')[-1][:-3]}.wav"
+    else:
+        output_path = args.output
+    
+    wavfile.write(output_path, args.sr, result.cpu().numpy().reshape(-1, 1))
 
 
 if __name__ == "__main__":

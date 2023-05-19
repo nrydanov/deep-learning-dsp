@@ -1,10 +1,10 @@
+from typing import Optional, Tuple
+
 import librosa
 import numpy as np
+import torch
 from pydantic import BaseSettings
 from torch.utils.data import Dataset
-import torch
-
-from typing import Tuple, Optional
 
 
 class BaseDataset(Dataset):
@@ -41,7 +41,8 @@ class WaveformDataset(BaseDataset):
             duration=config.duration,
         )
 
-        self.input = librosa.effects.preemphasis(self.input)
+        #        self.input = librosa.effects.preemphasis(self.input)
+        #       self.output = librosa.effects.preemphasis(self.output)
 
         self.config = config
 

@@ -1,16 +1,15 @@
+import argparse
 import logging
 import os
 from argparse import ArgumentParser
 from dataclasses import fields
 from enum import Enum
 from typing import Dict
-import argparse
-from auraloss.time import ESRLoss
-from auraloss.time import DCLoss
 
 import numpy as np
 import pandas as pd
 import torch
+from auraloss.time import DCLoss, ESRLoss
 from librosa import istft
 from torch.utils.tensorboard import SummaryWriter
 
@@ -46,20 +45,20 @@ def init_parser(type: ParserType) -> ArgumentParser:
         parser.add_argument("--restore_state", action=argparse.BooleanOptionalAction)
         parser.add_argument("--level", type=str, required=False)
         parser.add_argument("--overwrite", type=bool, required=False, default=False)
-        parser.add_argument("--loss", type=str, required=False, default='mse')
+        parser.add_argument("--loss", type=str, required=False, default="mse")
     else:
         parser.add_argument("--model_type", type=str, required=True)
         parser.add_argument("--model_config", type=str, required=True)
         parser.add_argument("--data_config", type=str, required=True)
         parser.add_argument("--checkpoint", type=str, required=True)
         parser.add_argument("--input", type=str, required=True)
-        parser.add_argument("--output", type=str, required=True)
+        parser.add_argument("--output", type=str, required=False)
         parser.add_argument("--device", type=str, required=False)
         parser.add_argument("--batch_size", type=int, required=False, default=65536)
         parser.add_argument("--duration", type=int, required=False, default=None)
         parser.add_argument("--sr", type=int, required=False, default=44100)
         parser.add_argument("--test", type=str, required=False)
-        parser.add_argument("--loss", type=str, required=False, default='mse')
+        parser.add_argument("--loss", type=str, required=False, default="mse")
     return parser
 
 
@@ -90,7 +89,6 @@ def init_loss(loss: str) -> torch.nn.Module:
             raise ValueError("Got an unexpected loss function")
 
 
-
 def init_logger(args) -> None:
     # TODO Add proper logging configuration
     FORMAT = "[%(levelname)s] [%(asctime)s] %(message)s"
@@ -114,6 +112,6 @@ def save_history(writer: str, attempt_name: str, history: dict):
     log_dir = f"tensorboard/{attempt_name}"
 
     for key, value in history.items():
-        if key == 'epoch':
+        if key == "epoch":
             continue
-        writer.add_scalar(key, value, history['epoch'])
+        writer.add_scalar(key, value, history["epoch"])
