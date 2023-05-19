@@ -7,9 +7,17 @@ from models import get_model
 from torch.nn import MSELoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader, random_split
-from tqdm import tqdm
-from utils import ParserType, init_device, init_logger, init_parser, save_history, init_loss
 from torch.utils.tensorboard import SummaryWriter
+from tqdm import tqdm
+from utils import (
+    ParserType,
+    init_device,
+    init_logger,
+    init_loss,
+    init_parser,
+    save_history,
+)
+
 
 def main():
     parser = init_parser(ParserType.TRAIN)
@@ -23,8 +31,7 @@ def main():
     model.to(device)
     optimizer = Adam(model.parameters(), args.learning_rate)
     save_path = f"checkpoints/{args.attempt_name}.pt"
-    writer = SummaryWriter(f'tensorboard/{args.attempt_name}')
-
+    writer = SummaryWriter(f"tensorboard/{args.attempt_name}")
 
     if args.restore_state is not None and args.restore_state:
         logging.info("Loading state from checkpoint")

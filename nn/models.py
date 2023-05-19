@@ -1,14 +1,12 @@
 import inspect
 import logging
 import sys
-
-from typing import Type, Optional
+from typing import Optional, Type
 
 import torch
+from datasets import BaseDataset, STFTDataset, WaveformDataset
 from pydantic import BaseSettings
 from torch.nn import LSTM, Linear, Module
-
-from datasets import BaseDataset, WaveformDataset, STFTDataset
 
 
 class BaseModel(Module):
