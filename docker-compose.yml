@@ -5,6 +5,8 @@ services:
       - ./data:/guitar-effects-emulation/data
       - ./config:/guitar-effects-emulation/config
       - ./outputs:/guitar-effects-emulation/outputs
+      - ./tensorboard/:/guitar-effects-emulation/tensorboard
+      - ./checkpoints/:/guitar-effects-emulation/checkpoints
     build: .
     tty: true
     deploy:
