@@ -23,6 +23,7 @@ RUN poetry config installer.max-workers 10 \
 
 
 COPY nn $WD_NAME/nn
-# COPY entrypoint.sh $WD_NAME/train_example.sh
-# RUN chmod +x $WD_NAME/train_example.sh
-# ENTRYPOINT /bin/bash $WD_NAME/train_example.sh
+COPY train_example.sh $WD_NAME/train_example.sh
+RUN chmod +x $WD_NAME/train_example.sh
+COPY inference_example.sh $WD_NAME/inference_example.sh
+RUN chmod +x $WD_NAME/inference_example.sh
