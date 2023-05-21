@@ -9,6 +9,8 @@ services:
       - ./checkpoints/:/guitar-effects-emulation/checkpoints
     build: .
     tty: true
+    ports:
+      - "6006:6006"
     deploy:
       resources:
         reservations:
