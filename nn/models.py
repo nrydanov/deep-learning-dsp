@@ -21,7 +21,6 @@ class BaselineLSTM(Module):
         hidden_size = config.hidden_size
 
         self.lstm = LSTM(1, hidden_size, batch_first=True)
-        self.batch_norm = BatchNorm1d(hidden_size)
         self.linear = Linear(hidden_size, 1)
         self.h_0 = None
         self.c_0 = None
@@ -45,8 +44,7 @@ class BaselineLSTM(Module):
                 )
 
         self.h_0, self.c_0 = (h_n.detach(), c_n.detach())
-        x = self.batch_norm(x.swapaxes(1, 2))
-        x = self.linear(x.swapaxes(1, 2))
+        x = self.linear(x)
         return torch.add(x, x0)
 
     def train(self, mode=True):

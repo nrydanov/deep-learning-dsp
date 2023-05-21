@@ -35,11 +35,11 @@ def init_parser(type: ParserType) -> ArgumentParser:
     parser = ArgumentParser()
     if type == ParserType.TRAIN:
         parser.add_argument("--model_type", type=str, required=True)
-        parser.add_argument("--epochs", type=int, required=True)
+        parser.add_argument("--epochs", type=int, required=False, default=1000)
         parser.add_argument("--model_config", type=str, required=True)
         parser.add_argument("--data_config", type=str, required=True)
-        parser.add_argument("--learning_rate", type=float, required=True)
-        parser.add_argument("--batch_size", type=int, required=True)
+        parser.add_argument("--learning_rate", type=float, required=False, default=0.001)
+        parser.add_argument("--batch_size", type=int, required=False, default=16)
         parser.add_argument("--attempt_name", type=str, required=True)
         parser.add_argument("--device", type=str, required=False)
         parser.add_argument("--restore_state", action=argparse.BooleanOptionalAction)
@@ -82,11 +82,12 @@ def init_device(device: str) -> torch.device:
 def init_loss(loss: str) -> torch.nn.Module:
     match loss:
         case "mse":
-            return torch.nn.MSELoss()
+            return torch.nn.MSELoss(reduction='sum')
         case "esr":
             return ESRLoss()
         case _:
             raise ValueError("Got an unexpected loss function")
+
 
 
 def init_logger(args) -> None:
