@@ -1,10 +1,9 @@
 ARG PLATFORM="amd64"
-ARG DEVICE="gpu"
 ARG HOST_IMAGE=ubuntu22.04
 ARG CUDA_VERSION=11.8.0
 
 
-FROM --platform=$PLATFORM nvidia/cuda:$CUDA_VERSION-runtime-$HOST_IMAGE as builder
+FROM --platform=$PLATFORM nvidia/cuda:$CUDA_VERSION-runtime-$HOST_IMAGE
 ENV WD_NAME=/guitar-effects-emulation
 
 ENV PIP_DEFAULT_TIMEOUT=200 \
@@ -27,3 +26,4 @@ COPY train_example.sh $WD_NAME/train_example.sh
 RUN chmod +x $WD_NAME/train_example.sh
 COPY inference_example.sh $WD_NAME/inference_example.sh
 RUN chmod +x $WD_NAME/inference_example.sh
+CMD ["poetry", "run", "tensorboard", "--logdir=$WD_NAME/tensorboard", "--bind_all"]
