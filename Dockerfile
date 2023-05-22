@@ -26,4 +26,4 @@ COPY train_example.sh $WD_NAME/train_example.sh
 RUN chmod +x $WD_NAME/train_example.sh
 COPY inference_example.sh $WD_NAME/inference_example.sh
 RUN chmod +x $WD_NAME/inference_example.sh
-CMD ["poetry", "run", "tensorboard", "--logdir=$WD_NAME/tensorboard", "--bind_all"]
+CMD poetry run tensorboard --logdir=$WD_NAME/tensorboard --bind_all

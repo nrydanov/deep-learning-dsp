@@ -18,6 +18,7 @@ from utils import (
     save_history,
 )
 
+import numpy as np
 
 def main():
     parser = init_parser(ParserType.TRAIN)
@@ -29,7 +30,7 @@ def main():
     model_config = model.Settings(_env_file=args.model_config)
     model = model(model_config)
     model.to(device)
-    optimizer = Adam(model.parameters(), args.learning_rate)
+    optimizer = Adam(model.parameters(), args.learning_rate, eps=1e-4)
     save_path = f"checkpoints/{args.attempt_name}.pt"
     writer = SummaryWriter(f"tensorboard/{args.attempt_name}")
 
@@ -38,6 +39,8 @@ def main():
         checkpoint = torch.load(save_path)
         model.load_state_dict(checkpoint["model"])
         optimizer.load_state_dict(checkpoint["optimizer"])
+        for g in optimizer.param_groups:
+            g['lr'] = args.learning_rate
         last_epoch = checkpoint["last_epoch"]
         best_loss = checkpoint["best_loss"]
         logging.info("Successfully loaded state from checkpoint")
@@ -71,13 +74,21 @@ def main():
         start_time = time()
         for i, (inputs, targets) in enumerate(loop):
             optimizer.zero_grad()
-
             targets = targets.to(device)
             inputs = inputs.to(device)
             outputs = model(inputs)
-
+  
             train_loss = loss(outputs, targets)
             train_loss.backward()
+
+            if train_loss.item() == np.nan:
+                logging.error("Found NaN, running diagnostics")
+
+                f = open("diagnostics.txt", "a")
+                for param in model.parameters():
+                    f.write(param.grad)
+                    f.write(param)
+                f.close()
 
             total_loss += train_loss.item()
 
