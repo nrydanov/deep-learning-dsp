@@ -20,10 +20,6 @@ RUN pip install poetry==${POETRY_VERSION}
 RUN poetry config installer.max-workers 10 \
         && poetry install --no-dev --no-interaction --no-ansi -vvv
 
-
+ADD entrypoint.sh $WD_NAME/entrypoint.sh
 COPY nn $WD_NAME/nn
-COPY train_example.sh $WD_NAME/train_example.sh
-RUN chmod +x $WD_NAME/train_example.sh
-COPY inference_example.sh $WD_NAME/inference_example.sh
-RUN chmod +x $WD_NAME/inference_example.sh
-CMD poetry run tensorboard --logdir=$WD_NAME/tensorboard --bind_all
+ENTRYPOINT ["poetry", "run", "sh", "entrypoint.sh"]

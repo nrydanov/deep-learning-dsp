@@ -49,7 +49,7 @@ def main():
             expected = torch.tensor([], dtype=torch.float32).to(device)
             for i in tqdm(range(0, data.shape[0], args.batch_size)):
                 encoded = converter.encode(
-                    data[i : i + args.batch_size].reshape(1, -1, 1)
+                    test_data[i : i + args.batch_size].reshape(1, -1, 1)
                 )
                 expected = torch.cat(
                     (expected, torch.tensor(encoded, dtype=torch.float32).to(device)), 1
