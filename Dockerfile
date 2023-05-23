@@ -20,6 +20,6 @@ RUN pip install poetry==${POETRY_VERSION}
 RUN poetry config installer.max-workers 10 \
         && poetry install --no-dev --no-interaction --no-ansi -vvv
 
-ADD entrypoint.sh $WD_NAME/entrypoint.sh
 COPY nn $WD_NAME/nn
 ENTRYPOINT ["poetry", "run", "sh", "entrypoint.sh"]
+CMD ["train"]
