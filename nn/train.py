@@ -4,6 +4,7 @@ from time import time
 
 import torch
 from models import get_model
+from schedulers import get_scheduler
 from torch.nn import MSELoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader, random_split
@@ -25,11 +26,11 @@ def main():
     init_logger(args)
 
     device = init_device(args.device)
-    model = get_model(args.model_type)
+    model = get_model(args.model)
     model_config = model.Settings(_env_file=args.model_config)
     model = model(model_config)
     model.to(device)
-    optimizer = Adam(model.parameters(), args.learning_rate, eps=1e-2)
+    optimizer = Adam(model.parameters(), args.learning_rate)
     save_path = f"checkpoints/{args.attempt_name}.pt"
     writer = SummaryWriter(f"tensorboard/{args.attempt_name}")
 
@@ -38,8 +39,6 @@ def main():
         checkpoint = torch.load(save_path)
         model.load_state_dict(checkpoint["model"])
         optimizer.load_state_dict(checkpoint["optimizer"])
-        for g in optimizer.param_groups:
-            g['lr'] = args.learning_rate
 
         last_epoch = checkpoint["last_epoch"]
         best_loss = checkpoint["best_loss"]
@@ -52,6 +51,11 @@ def main():
     else:
         last_epoch = -1
         best_loss = 1e18
+
+
+    scheduler = get_scheduler(args.scheduler)
+    scheduler_config = scheduler.Settings(_env_file=args.scheduler_config)
+    scheduler = scheduler(optimizer, scheduler_config)
 
     provider = model.get_provider()
     data_config = provider.Settings(args.data_config)
@@ -83,6 +87,7 @@ def main():
             total_loss += train_loss.item()
 
             optimizer.step()
+            scheduler.step()
             loop.set_description(f"Epoch {epoch}/{args.epochs}")
             loop.set_postfix(loss=total_loss / (i + 1))
         train_time = time() - start_time
