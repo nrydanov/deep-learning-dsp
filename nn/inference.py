@@ -16,16 +16,16 @@ def main():
     init_logger(args)
     device = init_device(args.device)
 
-    model = get_model(args.model_type)
+    model = get_model(args.model)
 
-    model_config = model.Settings(_env_file=args.model_config)
+    model_config = model.Settings(_env_file=f"{args.config}/model.cfg")
     model = model(model_config)
 
     model.load_state_dict(torch.load(args.checkpoint)["best_model"])
     model.to(device)
 
     provider = model.get_provider()
-    config = provider.Settings(args.data_config)
+    config = provider.Settings(f"{args.config}/data.cfg")
 
     converter = provider.Converter(config)
 
