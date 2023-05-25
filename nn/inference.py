@@ -16,16 +16,16 @@ def main():
     init_logger(args)
     device = init_device(args.device)
 
-    model = get_model(args.model_type)
+    model = get_model(args.model)
 
-    model_config = model.Settings(_env_file=args.model_config)
+    model_config = model.Settings(_env_file=f"{args.config}/model.cfg")
     model = model(model_config)
 
     model.load_state_dict(torch.load(args.checkpoint)["best_model"])
     model.to(device)
 
     provider = model.get_provider()
-    config = provider.Settings(args.data_config)
+    config = provider.Settings(f"{args.config}/data.cfg")
 
     converter = provider.Converter(config)
 
@@ -49,7 +49,7 @@ def main():
             expected = torch.tensor([], dtype=torch.float32).to(device)
             for i in tqdm(range(0, data.shape[0], args.batch_size)):
                 encoded = converter.encode(
-                    data[i : i + args.batch_size].reshape(1, -1, 1)
+                    test_data[i : i + args.batch_size].reshape(1, -1, 1)
                 )
                 expected = torch.cat(
                     (expected, torch.tensor(encoded, dtype=torch.float32).to(device)), 1

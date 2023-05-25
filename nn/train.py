@@ -4,6 +4,7 @@ from time import time
 
 import torch
 from models import get_model
+from schedulers import get_scheduler
 from torch.nn import MSELoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader, random_split
@@ -25,19 +26,24 @@ def main():
     init_logger(args)
 
     device = init_device(args.device)
-    model = get_model(args.model_type)
-    model_config = model.Settings(_env_file=args.model_config)
+    model = get_model(args.model)
+    model_config = model.Settings(_env_file=f"{args.config}/model.cfg")
     model = model(model_config)
     model.to(device)
     optimizer = Adam(model.parameters(), args.learning_rate)
     save_path = f"checkpoints/{args.attempt_name}.pt"
     writer = SummaryWriter(f"tensorboard/{args.attempt_name}")
+     
+    scheduler = get_scheduler(args.scheduler)
+    scheduler_config = scheduler.Settings(_env_file=f"{args.config}/scheduler.cfg")
+    scheduler = scheduler(optimizer, verbose=True, **scheduler_config.dict())
 
     if args.restore_state is not None and args.restore_state:
         logging.info("Loading state from checkpoint")
         checkpoint = torch.load(save_path)
         model.load_state_dict(checkpoint["model"])
         optimizer.load_state_dict(checkpoint["optimizer"])
+        scheduler.load_state_dict(checkpoint["scheduler"])
         last_epoch = checkpoint["last_epoch"]
         best_loss = checkpoint["best_loss"]
         logging.info("Successfully loaded state from checkpoint")
@@ -51,7 +57,7 @@ def main():
         best_loss = 1e18
 
     provider = model.get_provider()
-    data_config = provider.Settings(args.data_config)
+    data_config = provider.Settings(f"{args.config}/data.cfg")
     provider = provider(data_config)
 
     torch.manual_seed(69)
@@ -71,14 +77,12 @@ def main():
         start_time = time()
         for i, (inputs, targets) in enumerate(loop):
             optimizer.zero_grad()
-
             targets = targets.to(device)
             inputs = inputs.to(device)
             outputs = model(inputs)
-
+  
             train_loss = loss(outputs, targets)
             train_loss.backward()
-
             total_loss += train_loss.item()
 
             optimizer.step()
@@ -99,6 +103,7 @@ def main():
                 total_loss += val_loss.item()
 
         val_loss = total_loss / n_val
+        scheduler.step()
 
         save_path = f"checkpoints/{args.attempt_name}.pt"
         if val_loss < best_loss:
@@ -112,6 +117,7 @@ def main():
                     "optimizer": optimizer.state_dict(),
                     "best_loss": best_loss,
                     "last_epoch": epoch,
+                    "scheduler": scheduler.state_dict(),
                 },
                 save_path,
             )
@@ -125,6 +131,7 @@ def main():
                     "optimizer": optimizer.state_dict(),
                     "best_loss": best_loss,
                     "last_epoch": epoch,
+                    "scheduler": scheduler.state_dict(),
                 },
                 save_path,
             )
@@ -132,6 +139,7 @@ def main():
             "loss/train": train_loss,
             "loss/val": val_loss,
             "epoch": epoch,
+            "learning_rate": scheduler.get_last_lr()[0]
         }
 
         save_history(writer, args.attempt_name, history)

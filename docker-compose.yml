@@ -1,12 +1,13 @@
 services:
-  model-training:
-    image: model-training
+  model:
+    image: model
     volumes: 
       - ./data:/guitar-effects-emulation/data
       - ./config:/guitar-effects-emulation/config
       - ./outputs:/guitar-effects-emulation/outputs
       - ./tensorboard/:/guitar-effects-emulation/tensorboard
       - ./checkpoints/:/guitar-effects-emulation/checkpoints
+      - ./entrypoint.sh:/guitar-effects-emulation/entrypoint.sh
     build: .
     tty: true
     ports:
