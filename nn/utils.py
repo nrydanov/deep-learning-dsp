@@ -46,6 +46,7 @@ def init_parser(type: ParserType) -> ArgumentParser:
         parser.add_argument("--overwrite", type=bool, required=False, default=False)
         parser.add_argument("--scheduler", type=str, required=True)
         parser.add_argument("--batch_size", type=int, required=False, default=26)
+        parser.add_argument("--preemphasis", action=argparse.BooleanOptionalAction)
     else:
         parser.add_argument("--batch_size", type=int, required=False, default=65536)
         parser.add_argument("--checkpoint", type=str, required=True)
