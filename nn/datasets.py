@@ -17,7 +17,6 @@ class BaseDataset(Dataset):
         sample_rate: int
         offset: int
         duration: Optional[int] = None
-        preemphasis: bool = False
 
         class Config:
             pass
@@ -41,10 +40,6 @@ class WaveformDataset(BaseDataset):
             offset=config.offset,
             duration=config.duration,
         )
-
-        if config.preemphasis:
-            self.input = librosa.effects.preemphasis(self.input)
-            self.output = librosa.effects.preemphasis(self.output)
 
         self.config = config
 

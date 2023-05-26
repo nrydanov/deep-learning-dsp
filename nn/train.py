@@ -18,6 +18,7 @@ from utils import (
     init_parser,
     save_history,
 )
+from torchaudio.functional import preemphasis
 
 
 def main():
@@ -80,7 +81,11 @@ def main():
             targets = targets.to(device)
             inputs = inputs.to(device)
             outputs = model(inputs)
-  
+            
+            if args.preemphasis:
+                outputs = preemphasis(outputs)
+                targets = preemphasis(targets)
+
             train_loss = loss(outputs, targets)
             train_loss.backward()
             total_loss += train_loss.item()
@@ -97,7 +102,6 @@ def main():
             for inputs, targets in val_loader:
                 targets = targets.to(device)
                 inputs = inputs.to(device)
-
                 outputs = model(inputs)
                 val_loss = loss(outputs, targets)
                 total_loss += val_loss.item()
