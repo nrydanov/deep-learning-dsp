@@ -15,8 +15,8 @@ def main(args):
     model = get_model(args.model)
     model_config = model.Settings(_env_file=f"{args.config}/model.cfg")
     model = model(model_config)
-    
-    model.load_state_dict(torch.load(args.checkpoint)['model'])
+    d = torch.load(args.checkpoint)['model']
+    model.load_state_dict(d)
 
     with open(args.output, 'w') as json_file:
         json.dump(model.state_dict(), json_file, cls=EncodeTensor)

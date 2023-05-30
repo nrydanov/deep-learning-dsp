@@ -6,8 +6,7 @@ from typing import Optional, Type
 import torch
 from datasets import BaseDataset, STFTDataset, WaveformDataset
 from pydantic import BaseSettings
-from torch.nn import LSTM, Linear, Module, BatchNorm1d
-
+from torch.nn import LSTM, Linear, Module, LayerNorm
 
 class BaseModel(Module):
     def get_provider(self, **kwargs) -> Type[BaseDataset]:
@@ -19,7 +18,6 @@ class BaselineLSTM(Module):
         super().__init__()
 
         hidden_size = config.hidden_size
-
         self.lstm = LSTM(1, hidden_size, batch_first=True)
         self.linear = Linear(hidden_size, 1)
         self.h_0 = None
@@ -65,7 +63,7 @@ class FourierLSTM(Module):
 
         input_size = 1 + config.n_fft // 2
         hidden_size = config.hidden_size
-
+        self.layer_norm = LayerNorm(input_size)
         self.lstm = LSTM(input_size, hidden_size, batch_first=True)
         self.linear = Linear(hidden_size, input_size)
         self.h_0 = None
@@ -79,15 +77,16 @@ class FourierLSTM(Module):
             pass
 
     def forward(self, x0: torch.Tensor) -> torch.Tensor:
+        x = self.layer_norm(x0)
         if self.training:
-            x, (h_n, c_n) = self.lstm(x0)
+            x, (h_n, c_n) = self.lstm(x)
         else:
             if self.h_0 is None:
-                x, (h_n, c_n) = self.lstm(x0)
+                x, (h_n, c_n) = self.lstm(x)
             else:
-                batch_size = x0.size(dim=0)
+                batch_size = x.size(dim=0)
                 x, (h_n, c_n) = self.lstm(
-                    x0, (self.h_0[:, :batch_size, :], self.c_0[:, :batch_size, :])
+                    x, (self.h_0[:, :batch_size, :], self.c_0[:, :batch_size, :])
                 )
 
         self.h_0, self.c_0 = (h_n.detach(), c_n.detach())

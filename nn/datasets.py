@@ -26,6 +26,9 @@ class WaveformDataset(BaseDataset):
     input: np.ndarray
     output: np.ndarray
 
+    class Settings(BaseDataset.Settings):
+        step: int
+
     def __init__(self, config: BaseSettings) -> None:
         self.input, _ = librosa.load(
             path=config.in_path,
@@ -46,7 +49,7 @@ class WaveformDataset(BaseDataset):
         self.converter = WaveformDataset.Converter(self.config)
 
         np.random.seed(69)
-        self.x, self.y = self.__generate_samples__()
+        self.x, self.y = self.__generate_samples__(config.step)
 
     def __len__(self) -> int:
         return len(self.x)
@@ -54,9 +57,9 @@ class WaveformDataset(BaseDataset):
     def __getitem__(self, i) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.x[i], self.y[i]
 
-    def __generate_samples__(self) -> Tuple[np.ndarray, np.ndarray]:
+    def __generate_samples__(self, step_in_seconds) -> Tuple[np.ndarray, np.ndarray]:
+        step = int(step_in_seconds * self.config.sample_rate)
         x, y = [], []
-        step = self.config.sample_rate // 2
         for i in range(0, len(self.input), step):
             x_cur = self.input[i : i + step]
             y_cur = self.output[i : i + step]
@@ -112,7 +115,7 @@ class STFTDataset(WaveformDataset):
                     n_fft=self.config.n_fft,
                     hop_length=self.config.hop_length,
                     win_length=self.config.win_length,
-                    n_iter=128,
+                    n_iter=16,
                 )
 
             result = torch.tensor(conversion(outputs), dtype=torch.float32)
@@ -133,3 +136,4 @@ class STFTDataset(WaveformDataset):
         n_fft: int
         hop_length: int
         win_length: int
+        step: float

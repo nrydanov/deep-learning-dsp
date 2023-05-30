@@ -60,6 +60,7 @@ def main():
     provider = model.get_provider()
     data_config = provider.Settings(f"{args.config}/data.cfg")
     provider = provider(data_config)
+    logging.info(f"Provider input shape:{provider[0][0].shape}")
 
     torch.manual_seed(69)
     train_provider, val_provider = random_split(provider, [0.8, 0.2])
