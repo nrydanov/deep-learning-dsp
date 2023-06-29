@@ -105,7 +105,6 @@ class FourierLSTM(Module):
         return STFTDataset
 
 
-
 def get_model(name: str) -> Optional[Type[BaseModel]]:
     logging.info(f"Selecting model: {name}")
     is_class_member = (

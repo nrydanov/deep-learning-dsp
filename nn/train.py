@@ -34,7 +34,7 @@ def main():
     optimizer = Adam(model.parameters(), args.learning_rate)
     save_path = f"checkpoints/{args.attempt_name}.pt"
     writer = SummaryWriter(f"tensorboard/{args.attempt_name}")
-     
+
     scheduler = get_scheduler(args.scheduler)
     scheduler_config = scheduler.Settings(_env_file=f"{args.config}/scheduler.cfg")
     scheduler = scheduler(optimizer, verbose=True, **scheduler_config.dict())
@@ -82,7 +82,7 @@ def main():
             targets = targets.to(device)
             inputs = inputs.to(device)
             outputs = model(inputs)
-            
+
             if args.preemphasis:
                 outputs = preemphasis(outputs)
                 targets = preemphasis(targets)
@@ -144,7 +144,7 @@ def main():
             "loss/train": train_loss,
             "loss/val": val_loss,
             "epoch": epoch,
-            "learning_rate": scheduler.get_last_lr()[0]
+            "learning_rate": scheduler.get_last_lr()[0],
         }
 
         save_history(writer, args.attempt_name, history)

@@ -4,6 +4,7 @@ from types import MethodType
 import logging
 import numpy as np
 
+
 class DecayingCosineAnnealingLR(CosineAnnealingLR):
     def get_lr(self) -> float:
         lr = super().get_lr()
@@ -14,25 +15,25 @@ class DecayingCosineAnnealingLR(CosineAnnealingLR):
     def __init__(self, optimizer, **settings) -> float:
         super().__init__(optimizer, **settings)
 
-    
     class Settings(BaseSettings):
         T_max: int
         eta_min: float
+
 
 class CosineAnnealingLR(CosineAnnealingLR):
-
     class Settings(BaseSettings):
         T_max: int
         eta_min: float
 
-class ConstantLR(ConstantLR):
 
+class ConstantLR(ConstantLR):
     class Settings(BaseSettings):
         pass
 
+
 def get_scheduler(name: str):
     logging.info(f"Selecting scheduler: {name}")
-    
+
     match name:
         case "dca":
             return DecayingCosineAnnealingLR
@@ -40,4 +41,3 @@ def get_scheduler(name: str):
             return ConstantLR
         case "ca":
             return CosineAnnealingLR
-

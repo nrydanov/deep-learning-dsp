@@ -65,7 +65,7 @@ def main():
         output_path = f"outputs/{args.checkpoint.split('/')[-1][:-3]}.wav"
     else:
         output_path = args.output
-    
+
     wavfile.write(output_path, args.sr, result.cpu().numpy().reshape(-1, 1))
 
 
